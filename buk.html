@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buk Project</title>
+  <link rel="icon" type="image/png" href="icon try.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #fff;
+      font-family: 'Inter', Helvetica, Arial, sans-serif;
+      color: #000;
+      overflow-x: hidden;
+    }
+
+    .page {
+      width: 100%;
+    }
+
+    .project-title {
+      font-weight: 700;
+      font-size: clamp(28px, 5vw, 48px);
+      text-align: center;
+      padding: 40px 16px 20px;
+    }
+
+    .project-title img {
+      max-width: 300px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* TOC Section */
+    .toc-section {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px 0;
+    }
+
+    .toc {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      border-top: 1px solid #000;
+    }
+
+    .toc-item {
+      width: 100%;
+      border-bottom: 1px solid #000;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: clamp(22px, 5vw, 44px);
+      line-height: 1.4;
+      padding: 12px 20px;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+
+    .toc-item:hover {
+      background: var(--hover-color, #000);
+      color: #fff;
+    }
+
+    /* Vertical Gallery Section */
+    .gallery-section {
+      width: 100%;
+      height: 300vh;
+      position: relative;
+    }
+
+    .gallery-loop {
+      position: sticky;
+      top: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      height: 100vh;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .col img {
+      display: block;
+      width: 100%;
+      height: calc(100vh / 3);
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    /* Horizontal Gallery Section */
+    .side-gallery {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+
+    .side-gallery-inner {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .side-track {
+      display: flex;
+      flex-direction: row;
+      height: 70vh;
+      width: max-content;
+      gap: 40px;
+      padding: 0 20vw;
+      will-change: transform;
+    }
+
+    .side-track img {
+      height: 70vh;
+      width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .side-track img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Empty Space */
+    .empty-space {
+      width: 100%;
+      height: 100vh;
+      background: #fff;
+    }
+
+    /* Carousel Section - 3D Rotate Transition */
+    .carousel-section {
+      width: 100%;
+      height: 800vh;
+      position: relative;
+    }
+
+    .carousel-container {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      perspective: 1200px;
+      perspective-origin: 50% 50%;
+    }
+
+    .carousel-frame {
+      width: 1000px;
+      height: 700px;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .carousel-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transform-origin: center bottom;
+      backface-visibility: hidden;
+    }
+
+    .carousel-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Hover Grid Section */
+    .hover-grid-section {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: #fff;
+      position: relative;
+    }
+
+    .hover-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 150px);
+      grid-template-rows: repeat(2, 150px);
+      gap: 20px;
+    }
+
+    .grid-item {
+      width: 150px;
+      height: 150px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .grid-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: none;
+    }
+
+    .grid-item::before {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      height: 90vh;
+      background: rgba(255, 255, 255, 0.98);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .grid-item::after {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      height: 90vh;
+      background-image: var(--img-url);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .grid-item:hover::before,
+    .grid-item:hover::after {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .grid-item:nth-child(1) { --img-url: url('m4.jpg'); }
+    .grid-item:nth-child(2) { --img-url: url('m5.jpg'); }
+    .grid-item:nth-child(3) { --img-url: url('cover.jpg'); }
+    .grid-item:nth-child(4) { --img-url: url('render1.2.jpg'); }
+    .grid-item:nth-child(5) { --img-url: url('render3.2.jpg'); }
+    .grid-item:nth-child(6) { --img-url: url('redner2.2.jpg'); }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1 class="project-title">
+      <img src="buk icon.png" alt="Buk Project">
+    </h1>
+
+    <!-- Table of Contents Section -->
+    <section class="toc-section">
+      <div class="toc">
+        <div class="toc-item" data-color="#ff3366">Precedent Analyses</div>
+        <div class="toc-item" data-color="#3399ff">Site Documentation</div>
+        <div class="toc-item" data-color="#33cc66">Site Conditions</div>
+        <div class="toc-item" data-color="#ffcc33">User Requirements</div>
+        <div class="toc-item" data-color="#9966ff">Drawings</div>
+        <div class="toc-item" data-color="#ff6699">Model Documentation</div>
+        <div class="toc-item" data-color="#00cccc">Renderings</div>
+      </div>
+    </section>
+
+    <!-- Vertical Scrolling Gallery -->
+    <section class="gallery-section">
+      <div class="gallery-loop">
+        <!-- Left column - scrolls down -->
+        <div class="col scroll-down">
+          <img src="hannae.jpg" alt="Hannae">
+          <img src="circulation.jpg" alt="Circulation">
+          <img src="roof.jpg" alt="Roof">
+          <img src="overlay optiom 1.jpg" alt="Overlay">
+          <img src="mm3.jpg" alt="MM3">
+          <img src="new parti option2.jpg" alt="New Parti">
+        </div>
+
+        <!-- Middle column - scrolls up -->
+        <div class="col scroll-up">
+          <img src="telcel.jpg" alt="Telcel">
+          <img src="weld vs bolt.jpg" alt="Weld vs Bolt">
+          <img src="plan with bending moment.jpg" alt="Plan with Bending">
+          <img src="waffle alternative ID (1).jpg" alt="Waffle Alternative">
+          <img src="axon (1).jpg" alt="Axon">
+          <img src="connection details.jpg" alt="Connection Details">
+        </div>
+
+        <!-- Right column - scrolls down -->
+        <div class="col scroll-down">
+          <img src="monument.jpg" alt="Monument">
+          <img src="buckling -2 ID.jpg" alt="Buckling">
+          <img src="density diagram -2 ID.jpg" alt="Density Diagram">
+          <img src="facade structure axon -2 ID.jpg" alt="Facade">
+          <img src="ceiling axon-2 ID.jpg" alt="Ceiling">
+          <img src="MANUFACTURE ID (1).jpg" alt="Manufacture">
+          <img src="concrete steel wall ID -1.jpg" alt="Concrete">
+        </div>
+      </div>
+    </section>
+
+    <!-- Horizontal Scrolling Gallery -->
+    <section class="side-gallery">
+      <div class="side-gallery-inner">
+        <div class="side-track">
+          <img src="Extended site analysis final draft angel.jpg" alt="Extended site analysis">
+          <img src="Zoomed In Site Plan RF.jpg" alt="Zoomed In Site Plan RF">
+          <img src="new circulation diagram.jpg" alt="New circulation diagram">
+          <img src="100 and 500 year flood.jpg" alt="100 and 500 year flood">
+          <img src="Zoning Diagram Extended Out.jpg" alt="Zoning Diagram Extended Out">
+          <img src="Sun Path Diagram.jpg" alt="Sun Path Diagram">
+        </div>
+      </div>
+    </section>
+
+    <!-- Empty Spacer -->
+    <section class="empty-space"></section>
+
+    <!-- Carousel Section -->
+    <section class="carousel-section">
+      <div class="carousel-container">
+        <div class="carousel-frame">
+          <div class="carousel-card">
+            <img src="plan port.jpg" alt="Plan Port" class="carousel-img">
+          </div>
+          <div class="carousel-card">
+            <img src="roof plan.jpg" alt="Roof Plan" class="carousel-img">
+          </div>
+          <div class="carousel-card">
+            <img src="axon port.jpg" alt="Axon Port" class="carousel-img">
+          </div>
+          <div class="carousel-card">
+            <img src="elevation.jpg" alt="Elevation" class="carousel-img">
+          </div>
+          <div class="carousel-card">
+            <img src="section cut.jpg" alt="Section Cut" class="carousel-img">
+          </div>
+          <div class="carousel-card">
+            <img src="struc axon.jpg" alt="Struc Axon" class="carousel-img">
+          </div>
+          <div class="carousel-card">
+            <img src="wall section1.jpg" alt="Wall Section 1" class="carousel-img">
+          </div>
+          <div class="carousel-card">
+            <img src="wall section2.jpg" alt="Wall Section 2" class="carousel-img">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hover Grid Section -->
+    <section class="hover-grid-section">
+      <div class="hover-grid">
+        <div class="grid-item">
+          <img src="m4.jpg" alt="M4">
+        </div>
+        <div class="grid-item">
+          <img src="m5.jpg" alt="M5">
+        </div>
+        <div class="grid-item">
+          <img src="cover.jpg" alt="Cover">
+        </div>
+        <div class="grid-item">
+          <img src="render1.2.jpg" alt="Render 1.2">
+        </div>
+        <div class="grid-item">
+          <img src="render3.2.jpg" alt="Render 3.2">
+        </div>
+        <div class="grid-item">
+          <img src="redner2.2.jpg" alt="Render 2.2">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Reset scroll to top on page load
+    window.onbeforeunload = () => window.scrollTo(0, 0);
+
+    // Animate TOC items stacking on top of each other
+    gsap.to(".toc-item", {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: "power2.out",
+      stagger: 0.15,
+      scrollTrigger: {
+        trigger: ".toc-section",
+        start: "top center",
+        toggleActions: "play none none none"
+      }
+    });
+
+    // Assign hover colors to TOC items
+    document.querySelectorAll(".toc-item").forEach(el => {
+      el.style.setProperty("--hover-color", el.dataset.color || "#000");
+    });
+
+    // Vertical Gallery Animation
+    const scrollDownCols = document.querySelectorAll(".col.scroll-down");
+    const scrollUpCol = document.querySelector(".col.scroll-up");
+
+    // Animate left and right columns scrolling DOWN
+    scrollDownCols.forEach(col => {
+      gsap.to(col, {
+        y: () => -(col.scrollHeight - window.innerHeight),
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".gallery-section",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1
+        }
+      });
+    });
+
+    // Animate middle column scrolling UP
+    gsap.to(scrollUpCol, {
+      y: () => scrollUpCol.scrollHeight - window.innerHeight,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".gallery-section",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1
+      }
+    });
+
+    // Horizontal Gallery Animation - Freeze screen while scrolling horizontally
+    const sideGallery = document.querySelector(".side-gallery");
+    const sideGalleryInner = document.querySelector(".side-gallery-inner");
+    const sideTrack = document.querySelector(".side-track");
+    const sideImages = document.querySelectorAll(".side-track img");
+    
+    // Calculate total scroll width after images load
+    window.addEventListener('load', () => {
+      const totalScroll = sideTrack.scrollWidth - window.innerWidth;
+      
+      // Dynamically set the height to match exactly the scroll needed
+      gsap.set(sideGallery, { 
+        height: totalScroll + window.innerHeight 
+      });
+      
+      // Pin the gallery and scroll horizontally
+      gsap.to(sideTrack, {
+        x: -totalScroll,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sideGallery,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+          pin: sideGalleryInner,
+          anticipatePin: 1,
+          invalidateOnRefresh: true
+        }
+      });
+
+      // Add parallax effect to images
+      sideImages.forEach((img, i) => {
+        gsap.to(img, {
+          y: i % 2 === 0 ? -30 : 30,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sideGallery,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1,
+            invalidateOnRefresh: true
+          }
+        });
+      });
+    });
+
+    // Carousel Animation - 3D Card Flip/Rotate Transition
+    const carouselSection = document.querySelector(".carousel-section");
+    const carouselCards = document.querySelectorAll(".carousel-card");
+    const numCards = carouselCards.length;
+    
+    // Initialize: first card at 0deg (visible), others at -90deg (hidden below)
+    gsap.set(carouselCards[0], { rotateX: 0, zIndex: numCards });
+    carouselCards.forEach((card, i) => {
+      if (i > 0) {
+        gsap.set(card, { rotateX: -90, zIndex: numCards - i });
+      }
+    });
+    
+    // Create scroll animation
+    ScrollTrigger.create({
+      trigger: carouselSection,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 1,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        const segmentSize = 1 / numCards;
+        
+        carouselCards.forEach((card, i) => {
+          const segmentStart = i * segmentSize;
+          const segmentEnd = (i + 1) * segmentSize;
+          
+          if (progress >= segmentStart && progress < segmentEnd) {
+            // Current card: rotate from 0 to 90 degrees (flipping up and away)
+            const segmentProgress = (progress - segmentStart) / segmentSize;
+            const rotation = segmentProgress * 90;
+            gsap.set(card, { rotateX: rotation, zIndex: numCards - i });
+            
+            // Next card: rotate from -90 to 0 degrees (coming into view)
+            if (i < numCards - 1) {
+              const nextRotation = -90 + (segmentProgress * 90);
+              gsap.set(carouselCards[i + 1], { rotateX: nextRotation, zIndex: numCards - i - 1 });
+            }
+          } else if (progress < segmentStart) {
+            // Before this segment: keep at starting position
+            if (i === 0) {
+              gsap.set(card, { rotateX: 0 });
+            } else {
+              gsap.set(card, { rotateX: -90 });
+            }
+          } else if (progress >= segmentEnd) {
+            // After this segment: fully rotated away
+            gsap.set(card, { rotateX: 90 });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

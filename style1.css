@@ -1,0 +1,34 @@
+body {
+  margin: 0;
+  background: #ffffff; /* white background */
+  overflow: hidden;
+}
+
+#container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.letter {
+  position: absolute;
+  max-width: 50px; /* small scattered letters */
+  height: auto;
+  cursor: default;
+  transform-style: preserve-3d;
+}
+
+.poster {
+  position: absolute;
+  width: 100px;  /* base poster size */
+  height: auto;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  transition: transform 0.4s ease;
+  cursor: pointer;
+}
+
+/* Hover effect: move up ~1 inch and get bigger */
+.poster:hover {
+  transform: translate(-50%, calc(-50% - 96px)) scale(1.4);
+}

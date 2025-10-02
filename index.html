@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Letters to Posters Animation</title>
+  <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+  <div id="container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    const container = document.getElementById("container");
+
+    // --- Posters in order: structures → buk → airlume → flowform
+    const posters = [
+      "structuresposter.jpg",
+      "bukposter.jpg",
+      "airlumeposter.jpg",
+      "flowformposter.jpg"
+    ];
+
+    // Links for each poster
+    const projectLinks = [
+      "structures.html",
+      "buk.html",
+      "airlume.html",
+      "flowform.html"
+    ];
+
+    // --- Letter images (PNGs with transparency) ---
+    const baseLetters = [
+      "flowform r.png", "flowform w.png", "flowform o.png",
+      "flowform m.png", "flowform f.png", "flowform l.png",
+      "buk u.png", "buk b.png", "buk k.png",
+      "airlume m.png", "airlume e.png", "airlume r.png",
+      "airlume i.png", "airlume l.png", "airlume u.png", "airlume a.png",
+      "structures e.png", "structures r.png", "structures c.png",
+      "structures u.png", "structures t.png", "structures s.png"
+    ];
+
+    // Multiply letters for density
+    const lettersSrc = [...baseLetters, ...baseLetters, ...baseLetters];
+    const letters = [];
+
+    // Scatter letters randomly
+    lettersSrc.forEach((src) => {
+      const img = document.createElement("img");
+      img.classList.add("letter");
+      img.src = src;
+      img.style.left = Math.random() * window.innerWidth + "px";
+      img.style.top = Math.random() * window.innerHeight + "px";
+      container.appendChild(img);
+      letters.push(img);
+    });
+
+    // --- GSAP Timeline ---
+    const tl = gsap.timeline({ delay: 0.5 });
+
+    // Step 1: Gather letters into the middle
+    tl.to(letters, {
+      duration: 1.5,
+      x: (i) => window.innerWidth / 2 - letters[i].offsetLeft - 30,
+      y: (i) => window.innerHeight / 2 - letters[i].offsetTop - 30,
+      ease: "power2.inOut",
+      stagger: 0.01
+    });
+
+    // Step 2: Fade out letters
+    tl.to(letters, {
+      opacity: 0,
+      duration: 1,
+      ease: "power1.out"
+    });
+
+    // Step 3: Fade in posters in a horizontal line
+    tl.add(() => {
+      const spacing = 160; // horizontal spacing
+      const startX = window.innerWidth / 2 - ((posters.length - 1) * spacing) / 2;
+      const yPos = window.innerHeight / 2 + 48; // shifted down, so hover centers them
+
+      posters.forEach((src, i) => {
+        // Create link wrapper
+        const link = document.createElement("a");
+        link.href = projectLinks[i];
+        link.target = "_self"; // open in same tab
+
+        const img = document.createElement("img");
+        img.classList.add("poster");
+        img.src = src;
+        img.style.opacity = 0;
+
+        // Position posters
+        img.style.left = startX + i * spacing + "px";
+        img.style.top = yPos + "px";
+
+        link.appendChild(img);
+        container.appendChild(link);
+
+        // Animate fade in
+        gsap.to(img, { opacity: 1, duration: 1.2, delay: 0.2 });
+      });
+    });
+  </script>
+</body>
+</html>
