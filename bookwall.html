@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookwall</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: black;
+        }
+        
+        #bookshelf-container {
+            width: 98vw;
+            height: 98vh;
+            position: relative;
+            background-image: url('bookwall.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 1vh auto;
+        }
+        
+        #back-arrow {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            transition: background 0.3s;
+            text-decoration: none;
+        }
+        
+        #back-arrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .book-clickable {
+            position: absolute;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        
+        .book-clickable:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        #fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #fullscreen-overlay.active {
+            display: flex;
+        }
+        
+        #fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        #close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div id="bookshelf-container">
+        <a href="index.html" id="back-arrow">←</a>
+        
+        <!-- Clickable book areas will be added dynamically -->
+        <div id="books-container"></div>
+    </div>
+    
+    <div id="fullscreen-overlay">
+        <button id="close-fullscreen" onclick="closeFullscreen()">&times;</button>
+        <img id="fullscreen-image" src="" alt="Fullscreen view">
+    </div>
+    
+    <script>
+        // Colored books with their positions and images
+        const coloredBooks = [
+            // Red book (row 2, left section)
+            { top: '22%', left: '28%', width: '18x', height: '100px', image: 'book1.jpg' },
+            // Yellow/orange books (row 2, middle)
+            { top: '24%', left: '52%', width: '15px', height: '80px', image: 'book2.jpg' },
+            // Yellow book (row 2, right)
+            { top: '24%', left: '71%', width: '15px', height: '80px', image: 'book3.jpg' },
+            // Yellow/orange books (row 3, left)
+            { top: '41%', left: '19.5%', width: '30px', height: '80px', image: 'book4.jpg' },
+            // Orange book (row 3, middle-right)
+            { top: '41%', left: '63%', width: '15px', height: '80px', image: 'book5.jpg' },
+            // Blue book (row 4, left)
+            { top: '57%', left: '25%', width: '38px', height: '127px', image: 'book6.jpg' },
+            // Orange book (row 4, middle)
+            { top: '58%', left: '55.5%', width: '32px', height: '119px', image: 'book7.jpg' },
+            // Blue books (row 4, right)
+            { top: '57%', left: '70%', width: '36px', height: '124px', image: 'book8.jpg' }
+        ];
+        
+        function initializeBooks() {
+            const container = document.getElementById('books-container');
+            
+            coloredBooks.forEach((book, index) => {
+                const bookDiv = document.createElement('div');
+                bookDiv.className = 'book-clickable';
+                bookDiv.style.top = book.top;
+                bookDiv.style.left = book.left;
+                bookDiv.style.width = book.width;
+                bookDiv.style.height = book.height;
+                bookDiv.onclick = () => openFullscreen(book.image);
+                container.appendChild(bookDiv);
+            });
+        }
+        
+        function openFullscreen(imageSrc) {
+            const overlay = document.getElementById('fullscreen-overlay');
+            const image = document.getElementById('fullscreen-image');
+            image.src = imageSrc;
+            overlay.classList.add('active');
+        }
+        
+        function closeFullscreen() {
+            const overlay = document.getElementById('fullscreen-overlay');
+            overlay.classList.remove('active');
+        }
+        
+        // Close fullscreen on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFullscreen();
+            }
+        });
+        
+        // Initialize the page
+        initializeBooks();
+    </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Airlume</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <style>
+    /* Global Resets */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: black;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    section {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Overlay Titles */
+    .overlay-text {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: white;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .title-main {
+      font-size: 4rem;
+      margin: 0;
+      letter-spacing: 2px;
+    }
+
+    .title-sub {
+      font-size: 2rem;
+      margin: 0.5rem 0 0;
+      font-weight: 400;
+    }
+
+    .title-small {
+      font-size: 1.2rem;
+      margin: 0.3rem 0 0;
+      font-weight: 300;
+      opacity: 0.8;
+    }
+
+    /* Instructions */
+    .instructions {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      text-align: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Caption */
+    .caption {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      max-width: 80%;
+      font-size: 1.2rem;
+      line-height: 1.5;
+      color: black;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+    }
+
+    /* Image Section */
+    .image-section img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 100;
+    }
+
+    .zoom-controls button {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #666;
+      color: white;
+      font-size: 1.2rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .zoom-controls button:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Fixed Hotspot */
+    .hotspot-fixed {
+      position: absolute;
+      width: 1in;
+      height: 1in;
+      background: rgba(255, 0, 0, 0.3);
+      top: 31%;   
+      left: 44.8%;
+      transform: translate(-60%, -40%);
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    /* Hotspot Section */
+    .hotspot-section {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hotspot-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .base-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: black;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .hotspot:hover {
+      background: rgba(255,0,0,0.4);
+      transform: scale(1.1);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-image {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.6s ease;
+    }
+
+    .modal.show .modal-image {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Bubble Gallery */
+    .bubble-gallery {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      overflow: hidden;
+      transform: translate(-50%, -50%);
+      width: 576px;
+      height: 288px;
+    }
+
+    .bubble img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      animation: pulse 8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { 
+        transform: scale(0.5);
+        opacity: 0.3;
+      }
+      50% { 
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Home Button */
+    .home-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1rem;
+      z-index: 10000;
+      transition: background 0.3s ease;
+    }
+
+    .home-button:hover {
+      background: rgba(0, 0, 0, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <!-- Home Button -->
+  <a href="index.html" class="home-button">← Home</a>
+
+  <!-- Circle Reveal Section -->
+  <section>
+    <div class="overlay-text">
+      <img src="airlume icon.png" alt="Airlume" style="max-width: 200px; height: auto;">
+    </div>
+    <div class="instructions">
+      Click and drag to reveal the image
+    </div>
+    <canvas id="stage"></canvas>
+  </section>
+
+  <!-- Image Section with Zoom -->
+  <section class="image-section">
+    <div class="hotspot-fixed" id="hotspot1"></div>
+    <img id="zoomImage" src="baseplan.jpg" alt="Site Plan">
+    <div class="caption">
+      Site plan of design in the Basilica of Maxentius, within Parco Archeologico del Colosseo
+    </div>
+    <div class="zoom-controls">
+      <button id="zoomIn">＋</button>
+      <button id="zoomOut">－</button>
+    </div>
+  </section>
+
+  <!-- Modal for Hotspot -->
+  <div class="modal" id="modal1">
+    <span class="close" id="close1">&times;</span>
+    <img src="googleearthf.jpg" alt="Google Earth View" class="modal-image">
+  </div>
+
+  <!-- Hotspot Section -->
+  <section class="hotspot-section">
+    <div class="hotspot-wrapper">
+      <img src="baseplanf.jpg" alt="Base Plan" class="base-image">
+      <div class="hotspot" data-target="axonModal" style="top: 30%; left: 25%;">Axon</div>
+      <div class="hotspot" data-target="sectionModal" style="top: 50%; left: 50%;">Section</div>
+      <div class="hotspot" data-target="roofModal" style="top: 70%; left: 75%;">Roof</div>
+    </div>
+  </section>
+
+  <!-- Axon Modal -->
+  <div class="modal" id="axonModal">
+    <span class="close">&times;</span>
+    <img src="axonf.jpg" alt="Axon" class="modal-image">
+  </div>
+
+  <!-- Section Modal -->
+  <div class="modal" id="sectionModal">
+    <span class="close">&times;</span>
+    <img src="longsectionf.jpg" alt="Long Section" class="modal-image" id="sectionImage">
+  </div>
+
+  <!-- Roof Modal -->
+  <div class="modal" id="roofModal">
+    <span class="close">&times;</span>
+    <img src="roofplanf.jpg" alt="Roof Plan" class="modal-image">
+  </div>
+
+  <!-- Bubble Gallery -->
+  <section class="bubble-gallery">
+    <div class="bubble"><img src="exterioragainf.jpg" alt="Exterior Again"></div>
+    <div class="bubble"><img src="exteriorrender2.1f.jpg" alt="Exterior Render"></div>
+    <div class="bubble"><img src="interior2ff.jpg" alt="Interior 2"></div>
+    <div class="bubble"><img src="interior3f.jpg" alt="Interior 3"></div>
+  </section>
+
+  <script>
+    /* Circle Reveal */
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d');
+    let image = new Image();
+    image.src = 'collagecoverFF.jpg';
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      draw();
+    }
+    window.addEventListener('resize', resize);
+
+    const circles = [];
+    let isDragging = false;
+    let dragStart = null;
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      dragStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      isDragging = true;
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+      if (!isDragging) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+      const r = Math.max(10, Math.hypot(dx, dy));
+      circles.push({ x: dragStart.x, y: dragStart.y, r });
+      isDragging = false;
+      draw();
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (!image.complete) return;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      for (const c of circles) {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    image.onload = () => resize();
+    resize();
+
+    /* Zoom Controls */
+    const zoomImage = document.getElementById('zoomImage');
+    let scale = 1;
+
+    document.getElementById('zoomIn').addEventListener('click', () => {
+      scale = Math.min(scale + 0.2, 3);
+      zoomImage.style.transform = `scale(${scale})`;
+    });
+
+    document.getElementById('zoomOut').addEventListener('click', () => {
+      scale = Math.max(scale - 0.2, 0.5);
+      zoomImage.style.transform = `scale(${scale})`;
+    });
+
+    /* Hotspot Modal (fixed hotspot) */
+    const hotspot = document.getElementById('hotspot1');
+    const modal = document.getElementById('modal1');
+    const closeBtn = document.getElementById('close1');
+
+    hotspot.addEventListener('click', () => {
+      modal.classList.add('show');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('show');
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('show');
+      }
+    });
+
+    /* Hotspot Modals */
+    document.querySelectorAll('.hotspot').forEach(hotspot => {
+      hotspot.addEventListener('click', () => {
+        const targetId = hotspot.getAttribute('data-target');
+        const modal = document.getElementById(targetId);
+        modal.classList.add('show');
+      });
+    });
+
+    document.querySelectorAll('.modal .close').forEach(closeBtn => {
+      closeBtn.addEventListener('click', () => {
+        const modal = closeBtn.parentElement;
+        modal.classList.remove('show');
+      });
+    });
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+        }
+      });
+    });
+
+    /* Section Modal Toggle */
+    const sectionImage = document.getElementById('sectionImage');
+    let showingShort = false;
+
+    sectionImage.addEventListener('click', () => {
+      if (!showingShort) {
+        sectionImage.src = 'shortsectionf.jpg';
+        showingShort = true;
+      } else {
+        sectionImage.src = 'longsectionf.jpg';
+        showingShort = false;
+      }
+    });
+
+    /* Bubble Gallery Positioning */
+    window.addEventListener("DOMContentLoaded", () => {
+      const bubbles = document.querySelectorAll('.bubble');
+      const gallery = document.querySelector('.bubble-gallery');
+      const galleryWidth = gallery.offsetWidth;
+      const galleryHeight = gallery.offsetHeight;
+      const ovalWidth = 576;
+      const ovalHeight = 288;
+      const placed = [];
+
+      bubbles.forEach((bubble, i) => {
+        let x, y, safe = false;
+
+        while (!safe) {
+          x = Math.random() * (galleryWidth - ovalWidth) + ovalWidth / 2;
+          y = Math.random() * (galleryHeight - ovalHeight) + ovalHeight / 2;
+
+          safe = true;
+          for (const p of placed) {
+            const dx = x - p.x;
+            const dy = y - p.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const minDist = Math.sqrt(Math.pow(ovalWidth / 2, 2) + Math.pow(ovalHeight / 2, 2)) + 50;
+
+            if (dist < minDist) {
+              safe = false;
+              break;
+            }
+          }
+        }
+
+        bubble.style.left = `${x}px`;
+        bubble.style.top = `${y}px`;
+        bubble.style.zIndex = i;
+
+        // Set animation delay for each bubble's image
+        const img = bubble.querySelector('img');
+        img.style.animationDelay = `${i * 2}s`;
+
+        placed.push({ x, y });
+      });
+    });
+  </script>
+</body>
+</html>

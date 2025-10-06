@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: black;
+        }
+        
+        #gallery-container {
+            width: 98vw;
+            height: 98vh;
+            position: relative;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 1vh auto;
+        }
+        
+        .menu {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 35%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .menu.active {
+            display: block;
+        }
+        
+        #menu-trigger {
+            position: absolute;
+            top: 57%;
+            left: 4.7in;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background: transparent;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        #menu-trigger:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        #click-here-indicator {
+            position: absolute;
+            top: 50%;
+            left: 4.9in;
+            transform: translate(-50%, -50%);
+            color: rgb(52, 50, 50);
+            font-size: 14px;
+            pointer-events: none;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            animation: bounceUpDown 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes bounceUpDown {
+            0%, 100% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-15px);
+            }
+        }
+        
+        #back-arrow {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            transition: background 0.3s;
+            text-decoration: none;
+        }
+        
+        #back-arrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .menu-item {
+            display: block;
+            width: 96px;
+            height: 96px;
+            margin: 10px 0;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.2;
+            padding: 5px;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .menu-item:hover {
+            background: #555;
+        }
+        
+        .frame-clickable {
+            position: absolute;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        
+        .frame-clickable:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        #fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #fullscreen-overlay.active {
+            display: flex;
+        }
+        
+        #fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        #close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div id="gallery-container">
+        <a href="#" id="back-arrow" onclick="goBack(event)">←</a>
+        
+        <div id="menu-trigger" onclick="toggleMenu()"></div>
+        <div id="click-here-indicator">CLICK<br>HERE</div>
+        
+        <div class="menu" id="menu">
+            <button class="menu-item" onclick="showContent('overview')">Project Overview</button>
+            <button class="menu-item" onclick="showContent('plan')">Plan</button>
+            <button class="menu-item" onclick="showContent('roof')">Roof Plan</button>
+            <button class="menu-item" onclick="nextRoom()">Next Room</button>
+        </div>
+        
+        <!-- Clickable frame areas will be added dynamically based on room -->
+        <div id="frames-container"></div>
+    </div>
+    
+    <div id="fullscreen-overlay">
+        <button id="close-fullscreen" onclick="closeFullscreen()">&times;</button>
+        <img id="fullscreen-image" src="" alt="Fullscreen view">
+    </div>
+    
+    <script>
+        let currentRoom = 1;
+        
+        const rooms = {
+            1: {
+                background: 'room1.png',
+                frames: [
+                    // Left frame
+                    { top: '30%', left: '15%', width: '100px', height: '270px', image: 'roofplanf.jpg' },
+                    // Center frame - opens planf.jpg (no second image)
+                    { top: '28%', left: '37%', width: '390px', height: '240px', image: 'planf.jpg' }
+                ]
+            },
+            2: {
+                background: 'room2.png',
+                frames: [
+                    // Three frames for room 2
+                    { top: '28%', left: '29.5%', width: '180px', height: '210px', image: 'shortsectionf.jpg' },
+                    { top: '32%', left: '45.5%', width: '340px', height: '230px', image: 'longsectionf.jpg' },
+                    { top: '20%', left: '74%', width: '180px', height: '335px', image: 'axonf.jpg' }
+                ]
+            }
+        };
+        
+        function loadRoom(roomNumber) {
+            const container = document.getElementById('gallery-container');
+            const framesContainer = document.getElementById('frames-container');
+            const menu = document.getElementById('menu');
+            const menuTrigger = document.getElementById('menu-trigger');
+            const clickIndicator = document.getElementById('click-here-indicator');
+            
+            // Set background
+            container.style.backgroundImage = `url('${rooms[roomNumber].background}')`;
+            
+            // Clear existing frames
+            framesContainer.innerHTML = '';
+            
+            // Hide menu elements in room 2
+            if (roomNumber === 2) {
+                menu.style.display = 'none';
+                menuTrigger.style.display = 'none';
+                clickIndicator.style.display = 'none';
+            } else {
+                menuTrigger.style.display = 'block';
+                if (!menu.classList.contains('active')) {
+                    clickIndicator.style.display = 'block';
+                }
+            }
+            
+            // Add clickable frames
+            rooms[roomNumber].frames.forEach((frame, index) => {
+                const frameDiv = document.createElement('div');
+                frameDiv.className = 'frame-clickable';
+                frameDiv.style.top = frame.top;
+                frameDiv.style.left = frame.left;
+                frameDiv.style.width = frame.width;
+                frameDiv.style.height = frame.height;
+                frameDiv.onclick = () => openFullscreen(frame.image);
+                framesContainer.appendChild(frameDiv);
+            });
+        }
+        
+        function nextRoom() {
+            currentRoom = currentRoom === 1 ? 2 : 1;
+            loadRoom(currentRoom);
+            // Hide menu when switching rooms
+            const menu = document.getElementById('menu');
+            menu.classList.remove('active');
+        }
+        
+        function goBack(event) {
+            event.preventDefault();
+            if (currentRoom === 2) {
+                // Go back to room 1
+                currentRoom = 1;
+                loadRoom(currentRoom);
+            } else {
+                // Go back to index.html
+                window.location.href = 'index.html';
+            }
+        }
+        
+        function openFullscreen(imageSrc) {
+            const overlay = document.getElementById('fullscreen-overlay');
+            const image = document.getElementById('fullscreen-image');
+            image.src = imageSrc;
+            overlay.classList.add('active');
+        }
+        
+        function closeFullscreen() {
+            const overlay = document.getElementById('fullscreen-overlay');
+            overlay.classList.remove('active');
+        }
+        
+        function showContent(type) {
+            alert(`Showing ${type} content`);
+            // You can expand this to show actual content
+        }
+        
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            const indicator = document.getElementById('click-here-indicator');
+            menu.classList.toggle('active');
+            
+            // Hide the "CLICK HERE" indicator once menu is opened
+            if (menu.classList.contains('active')) {
+                indicator.style.display = 'none';
+            }
+        }
+        
+        // Close fullscreen on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFullscreen();
+            }
+        });
+        
+        // Initialize with room 1
+        loadRoom(1);
+    </script>
+</body>
+</html>
