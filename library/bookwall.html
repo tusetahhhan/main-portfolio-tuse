@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookwall</title>
+    <link rel="stylesheet" href="bookwall-style.css">
+</head>
+<body>
+    <div id="bookshelf-container">
+        <a href="../first page/index.html" id="back-arrow">←</a>
+        
+        <!-- Clickable book areas will be added dynamically -->
+        <div id="books-container"></div>
+    </div>
+    
+    <div id="fullscreen-overlay">
+        <button id="close-fullscreen" onclick="closeFullscreen()">&times;</button>
+        <img id="fullscreen-image" src="" alt="Fullscreen view">
+    </div>
+    
+    <script src="bookwall-script.js"></script>
+</body>
+</html>

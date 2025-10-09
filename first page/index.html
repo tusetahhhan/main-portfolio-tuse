@@ -13,7 +13,7 @@
   <script>
     const container = document.getElementById("container");
 
-    // --- Posters in order: structures → buk → airlume → flowform
+    // Posters in order: structures → buk → airlume → flowform
     const posters = [
       "structuresposter.jpg",
       "bukposter.jpg",
@@ -21,23 +21,23 @@
       "flowformposter.jpg"
     ];
 
-    // Links for each poster
+    // Links for each poster (relative paths to other folders)
     const projectLinks = [
       "structures.html",
-      "bookwall.html",
-      "gallery.html",
+      "../library/bookwall.html",
+      "../balloon/gallery.html",
       "flowform.html"
     ];
 
-    // --- Letter images (PNGs with transparency) ---
+    // Letter images (PNGs with transparency) - now in letters/ subfolder
     const baseLetters = [
-      "flowform r.png", "flowform w.png", "flowform o.png",
-      "flowform m.png", "flowform f.png", "flowform l.png",
-      "buk u.png", "buk b.png", "buk k.png",
-      "airlume m.png", "airlume e.png", "airlume r.png",
-      "airlume i.png", "airlume l.png", "airlume u.png", "airlume a.png",
-      "structures e.png", "structures r.png", "structures c.png",
-      "structures u.png", "structures t.png", "structures s.png"
+      "letters/flowform r.png", "letters/flowform w.png", "letters/flowform o.png",
+      "letters/flowform m.png", "letters/flowform f.png", "letters/flowform l.png",
+      "letters/buk u.png", "letters/buk b.png", "letters/buk k.png",
+      "letters/airlume m.png", "letters/airlume e.png", "letters/airlume r.png",
+      "letters/airlume i.png", "letters/airlume l.png", "letters/airlume u.png", "letters/airlume a.png",
+      "letters/structures e.png", "letters/structures r.png", "letters/structures c.png",
+      "letters/structures u.png", "letters/structures t.png", "letters/structures s.png"
     ];
 
     // Multiply letters for density
@@ -55,7 +55,7 @@
       letters.push(img);
     });
 
-    // --- GSAP Timeline ---
+    // GSAP Timeline
     const tl = gsap.timeline({ delay: 0.5 });
 
     // Step 1: Gather letters into the middle
@@ -76,29 +76,25 @@
 
     // Step 3: Fade in posters in a horizontal line
     tl.add(() => {
-      const spacing = 160; // horizontal spacing
+      const spacing = 160;
       const startX = window.innerWidth / 2 - ((posters.length - 1) * spacing) / 2;
-      const yPos = window.innerHeight / 2 + 48; // shifted down, so hover centers them
+      const yPos = window.innerHeight / 2 + 48;
 
       posters.forEach((src, i) => {
-        // Create link wrapper
         const link = document.createElement("a");
         link.href = projectLinks[i];
-        link.target = "_self"; // open in same tab
+        link.target = "_self";
 
         const img = document.createElement("img");
         img.classList.add("poster");
         img.src = src;
         img.style.opacity = 0;
-
-        // Position posters
         img.style.left = startX + i * spacing + "px";
         img.style.top = yPos + "px";
 
         link.appendChild(img);
         container.appendChild(link);
 
-        // Animate fade in
         gsap.to(img, { opacity: 1, duration: 1.2, delay: 0.2 });
       });
     });

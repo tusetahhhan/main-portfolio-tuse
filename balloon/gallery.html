@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Gallery</title>
+    <link rel="stylesheet" href="gallery-style.css">
+</head>
+<body>
+    <div id="gallery-container">
+        <a href="#" id="back-arrow" onclick="goBack(event)">←</a>
+        
+        <div id="menu-trigger" onclick="toggleMenu()"></div>
+        <div id="click-here-indicator">CLICK<br>HERE</div>
+        
+        <div class="menu" id="menu">
+            <button class="menu-item" onclick="showContent('overview')">Project Overview</button>
+            <button class="menu-item" onclick="showContent('plan')">Plan</button>
+            <button class="menu-item" onclick="showContent('roof')">Roof Plan</button>
+            <button class="menu-item" onclick="nextRoom()">Next Room</button>
+        </div>
+        
+        <!-- Clickable frame areas will be added dynamically based on room -->
+        <div id="frames-container"></div>
+    </div>
+    
+    <div id="fullscreen-overlay">
+        <button id="close-fullscreen" onclick="closeFullscreen()">&times;</button>
+        <img id="fullscreen-image" src="" alt="Fullscreen view">
+    </div>
+    
+    <script src="gallery-script.js"></script>
+</body>
+</html>
