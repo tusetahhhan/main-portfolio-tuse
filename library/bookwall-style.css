@@ -97,7 +97,7 @@ body {
 }
 
 #fullscreen-overlay.zoomed {
-    background: white;
+    background: white !important;
 }
 
 #fullscreen-image {
@@ -113,13 +113,13 @@ body {
     width: 0;
     height: 0;
     object-fit: contain;
-    transform: translateY(-5%);
+    transform: translateY(3%);
     transition: width 2s ease-out, height 2s ease-out;
 }
 
 #fullscreen-video.video-zoom-in {
-    width: 130vw;
-    height: 160vh;
+    width: 120vw;
+    height: 145vh;
 }
 
 #fullscreen-overlay.zoomed #fullscreen-image {
@@ -136,4 +136,23 @@ body {
     background: none;
     border: none;
     z-index: 1001;
+}
+
+#enter-button {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: none;
+    z-index: 1001;
+    cursor: pointer;
+}
+
+#enter-button img {
+    max-width: 150px;
+    height: auto;
+    transition: transform 0.3s ease;
+}
+
+#enter-button:hover img {
+    transform: scale(1.1);
 }

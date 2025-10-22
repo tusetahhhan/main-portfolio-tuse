@@ -1,19 +1,17 @@
 // Colored books with their positions, images, and series titles
 const coloredBooks = [
     // 1. Pink book (row 1, left section)
-    { top: '9%', left: '27%', width: '21px', height: '124px', image: 'book1.png', title: 'Series 1: The Precedents' },
+    { top: '27.5%', left: '30.5%', width: '98px', height: '52px', image: 'book1.png', title: 'Series 1: The Precedents' },
     // 2. Yellow book (row 1, right)
-    { top: '9.5%', left: '72.5%', width: '30px', height: '120px', image: 'book1.png', title: 'Series 2' },
+    { top: '3.5%', left: '46%', width: '172px', height: '55px', image: 'book1.png', title: 'Series 2' },
     // 3. Yellow/orange books (row 2, left)
-    { top: '33%', left: '20.5%', width: '38px', height: '126px', image: 'book1.png', title: 'Series 3' },
+    { top: '18.5%', left: '60.5%', width: '195px', height: '66px', image: 'book1.png', title: 'Series 3' },
     // 4. Orange book (row 2, middle-right)
-    { top: '33%', left: '68%', width: '22px', height: '125px', image: 'book1.png', title: 'Series 4' },
+    { top: '60%', left: '30.7%', width: '126px', height: '62px', image: 'book1.png', title: 'Series 4' },
     // 5. Blue book (row 3, left)
-    { top: '56.5%', left: '25%', width: '38px', height: '130px', image: 'book1.png', title: 'Series 5' },
+    { top: '60%', left: '62.5%', width: '145px', height: '60px', image: 'book1.png', title: 'Series 5' },
     // 6. Neon orange book (row 3, middle)
-    { top: '57.5%', left: '55.5%', width: '32px', height: '119px', image: 'book1.png', title: 'Series 6' },
-    // 7. Blue books (row 3, right)
-    { top: '56.5%', left: '69.5%', width: '36px', height: '124px', image: 'book1.png', title: 'Series 7' }
+    { top: '85%', left: '27.9%', width: '132px', height: '61px', image: 'book1.png', title: 'Series 6' }
 ];
 
 function initializeBooks() {
@@ -42,23 +40,27 @@ function openFullscreen(imageSrc, title) {
     const overlay = document.getElementById('fullscreen-overlay');
     const image = document.getElementById('fullscreen-image');
     const video = document.getElementById('fullscreen-video');
+    const enterButton = document.getElementById('enter-button');
     
     image.src = imageSrc;
     overlay.classList.add('active');
     
-    // Remove zoom class and hide video initially
+    // Remove zoom class and hide video and enter button initially
     overlay.classList.remove('zoomed');
     video.style.display = 'none';
     image.style.display = 'block';
+    enterButton.style.display = 'none';
 }
 
 function closeFullscreen() {
     const overlay = document.getElementById('fullscreen-overlay');
     const video = document.getElementById('fullscreen-video');
+    const enterButton = document.getElementById('enter-button');
     overlay.classList.remove('active');
     overlay.classList.remove('zoomed');
     video.pause();
     video.currentTime = 0;
+    enterButton.style.display = 'none';
 }
 
 // Handle click on fullscreen overlay to zoom and play video
@@ -66,10 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('fullscreen-overlay');
     const image = document.getElementById('fullscreen-image');
     const video = document.getElementById('fullscreen-video');
+    const enterButton = document.getElementById('enter-button');
+    
+    // Show enter button when video ends
+    video.addEventListener('ended', () => {
+        enterButton.style.display = 'block';
+    });
     
     overlay.addEventListener('click', (e) => {
-        // Don't trigger if clicking close button
-        if (e.target.id === 'close-fullscreen') return;
+        // Don't trigger if clicking close button or enter button
+        if (e.target.id === 'close-fullscreen' || e.target.closest('#enter-button')) return;
         
         // If not zoomed yet, zoom in and play video after zoom completes
         if (!overlay.classList.contains('zoomed')) {
@@ -94,6 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeFullscreen();
+    }
+    // Trigger enter button on Enter key if button is visible
+    if (e.key === 'Enter') {
+        const enterButton = document.getElementById('enter-button');
+        if (enterButton.style.display === 'block') {
+            enterButton.click();
+        }
     }
 });
 

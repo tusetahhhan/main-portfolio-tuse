@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Book</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #book-container {
+            position: relative;
+            max-width: 100vw;
+            max-height: 100vh;
+        }
+        
+        #book-image {
+            max-width: 100vw;
+            max-height: 100vh;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .clickable-area {
+            position: absolute;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            max-width: 192px;
+            max-height: 192px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+        
+        .clickable-area:hover {
+            opacity: 0.7;
+        }
+        
+        #back-arrow {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: black;
+            transition: background 0.3s;
+            text-decoration: none;
+            z-index: 100;
+        }
+        
+        #back-arrow:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        #hand-flip {
+            position: absolute;
+            bottom: 10px;
+            right: 335px;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+        
+        #hand-flip:hover {
+            transform: scale(1.1);
+        }
+        
+        #hand-flip img {
+            width: 150px;
+            height: auto;
+        }
+        
+        #fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #fullscreen-overlay.active {
+            display: flex;
+        }
+        
+        #fullscreen-image {
+            max-width: 95vw;
+            max-height: 95vh;
+            object-fit: contain;
+        }
+        
+        #close-fullscreen {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            color: black;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <a href="bookwall.html" id="back-arrow">←</a>
+    
+    <div id="book-container">
+        <img id="book-image" src="openbook.png" alt="Open Book">
+        
+        <!-- Clickable thumbnail images on the book -->
+        <img class="clickable-area" src="hannae.jpg" style="top: 30%; left: 16%;" onclick="openFullscreen('hannae.jpg')">
+        <img class="clickable-area" src="circulation.jpg" style="top: 54%; left: 57%;" onclick="openFullscreen('circulation.jpg')">
+        <img class="clickable-area" src="roof.jpg" style="top: 30%; left: 57%;" onclick="openFullscreen('roof.jpg')">
+        <img class="clickable-area" src="overlay optiom 1.jpg" style="top: 53%; left: 17%;" onclick="openFullscreen('overlay optiom 1.jpg')">
+    </div>
+    
+    <a href="openbook2.html" id="hand-flip">
+        <img src="handflipping.png" alt="Flip Page">
+    </a>
+    
+    <div id="fullscreen-overlay">
+        <button id="close-fullscreen" onclick="closeFullscreen()">&times;</button>
+        <img id="fullscreen-image" src="" alt="Fullscreen view">
+    </div>
+    
+    <script>
+        function openFullscreen(imageSrc) {
+            const overlay = document.getElementById('fullscreen-overlay');
+            const image = document.getElementById('fullscreen-image');
+            image.src = imageSrc;
+            overlay.classList.add('active');
+        }
+        
+        function closeFullscreen() {
+            const overlay = document.getElementById('fullscreen-overlay');
+            overlay.classList.remove('active');
+        }
+        
+        // Close fullscreen on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
