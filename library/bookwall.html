@@ -5,6 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookwall</title>
     <link rel="stylesheet" href="bookwall-style.css">
+    <style>
+        #right-arrow {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        
+        #right-arrow:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        #right-arrow .arrow-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        #right-arrow .arrow-text {
+            font-family: Arial, sans-serif;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .render-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .render-view.active {
+            display: flex;
+        }
+        
+        .render-view img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+        }
+        
+        .render-arrow {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 2001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        
+        .render-arrow:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .render-arrow .arrow-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .go-back-arrow {
+            position: absolute;
+            left: calc(50% + 1.5in);
+            bottom: calc(50px + 2in);
+            transform: translateX(-50%);
+            cursor: pointer;
+            z-index: 2001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        
+        .go-back-arrow:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+        
+        .go-back-arrow .arrow-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .go-back-arrow .arrow-text {
+            font-family: Arial, sans-serif;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div id="bookshelf-container">
@@ -12,6 +144,37 @@
         
         <!-- Clickable book areas will be added dynamically -->
         <div id="books-container"></div>
+        
+        <!-- Right arrow for navigation -->
+        <div id="right-arrow" onclick="showRender1()">
+            <div class="arrow-icon">→</div>
+            <div class="arrow-text">LOOK AROUND!</div>
+        </div>
+    </div>
+    
+    <!-- Render 1 View (redner2.2.jpg) -->
+    <div id="render1-view" class="render-view">
+        <img src="redner2.2.jpg" alt="Render 1">
+        <div class="render-arrow" onclick="showRender2()">
+            <div class="arrow-icon">→</div>
+        </div>
+    </div>
+    
+    <!-- Render 2 View (render1.2.jpg) -->
+    <div id="render2-view" class="render-view">
+        <img src="render1.2.jpg" alt="Render 2">
+        <div class="render-arrow" onclick="showRender3()">
+            <div class="arrow-icon">→</div>
+        </div>
+    </div>
+    
+    <!-- Render 3 View (render3.2.jpg) -->
+    <div id="render3-view" class="render-view">
+        <img src="render3.2.jpg" alt="Render 3">
+        <div class="go-back-arrow" onclick="goBackToBookwall()">
+            <div class="arrow-icon">←</div>
+            <div class="arrow-text">GO BACK</div>
+        </div>
     </div>
     
     <div id="fullscreen-overlay">
@@ -22,5 +185,24 @@
     </div>
     
     <script src="bookwall-script.js"></script>
+    <script>
+        function showRender1() {
+            document.getElementById('render1-view').classList.add('active');
+        }
+        
+        function showRender2() {
+            document.getElementById('render1-view').classList.remove('active');
+            document.getElementById('render2-view').classList.add('active');
+        }
+        
+        function showRender3() {
+            document.getElementById('render2-view').classList.remove('active');
+            document.getElementById('render3-view').classList.add('active');
+        }
+        
+        function goBackToBookwall() {
+            document.getElementById('render3-view').classList.remove('active');
+        }
+    </script>
 </body>
 </html>

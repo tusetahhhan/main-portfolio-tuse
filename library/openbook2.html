@@ -13,7 +13,10 @@
         
         body {
             overflow: hidden;
-            background-color: white;
+            background-image: url('blurrybackground.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,10 +25,11 @@
         }
         
         #book-image {
-            max-width: 100vw;
-            max-height: 100vh;
+            max-width: 120vw;
+            max-height: 120vh;
             object-fit: contain;
             display: block;
+            transform: scale(1.3);
         }
         
         #back-arrow {
@@ -54,8 +58,8 @@
         
         #hand-flip-back {
             position: absolute;
-            bottom: 9px;
-            left: 335px;
+            bottom: -50px;
+            left: 200px;
             cursor: pointer;
             z-index: 100;
             transition: transform 0.3s;

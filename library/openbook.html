@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Book</title>
     <style>
+        @import url('https://fonts.cdnfonts.com/css/neue-haas-grotesk-display-pro');
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +15,10 @@
         
         body {
             overflow: hidden;
-            background-color: white;
+            background-image: url('blurrybackground.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,13 +28,14 @@
         
         #book-container {
             position: relative;
-            max-width: 100vw;
-            max-height: 100vh;
+            max-width: 120vw;
+            max-height: 120vh;
+            transform: scale(1.3);
         }
         
         #book-image {
-            max-width: 100vw;
-            max-height: 100vh;
+            max-width: 120vw;
+            max-height: 120vh;
             object-fit: contain;
             display: block;
         }
@@ -47,6 +53,41 @@
         
         .clickable-area:hover {
             opacity: 0.7;
+        }
+        
+        .clickable-area-large {
+            position: absolute;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            max-width: 253.92px;
+            max-height: 253.92px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+        
+        .clickable-area-large:hover {
+            opacity: 0.7;
+        }
+        
+        .title-above {
+            position: absolute;
+            font-family: 'Neue Haas Grotesk Display Pro', Arial, sans-serif;
+            font-size: 9px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #000;
+            max-width: 180px;
+        }
+        
+        .body-text-beside {
+            position: absolute;
+            font-family: 'Neue Haas Grotesk Display Pro', Arial, sans-serif;
+            font-size: 8px;
+            font-weight: 400;
+            line-height: 1.3;
+            color: #333;
+            max-width: 110px;
         }
         
         #back-arrow {
@@ -75,8 +116,8 @@
         
         #hand-flip {
             position: absolute;
-            bottom: 10px;
-            right: 335px;
+            bottom: -50px;
+            right: 200px;
             cursor: pointer;
             z-index: 100;
             transition: transform 0.3s;
@@ -98,7 +139,10 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: white;
+            background-image: url('blurrybackground.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -133,11 +177,46 @@
     <div id="book-container">
         <img id="book-image" src="openbook.png" alt="Open Book">
         
-        <!-- Clickable thumbnail images on the book -->
-        <img class="clickable-area" src="hannae.jpg" style="top: 30%; left: 16%;" onclick="openFullscreen('hannae.jpg')">
-        <img class="clickable-area" src="circulation.jpg" style="top: 54%; left: 57%;" onclick="openFullscreen('circulation.jpg')">
-        <img class="clickable-area" src="roof.jpg" style="top: 30%; left: 57%;" onclick="openFullscreen('roof.jpg')">
-        <img class="clickable-area" src="overlay optiom 1.jpg" style="top: 53%; left: 17%;" onclick="openFullscreen('overlay optiom 1.jpg')">
+        <!-- Title above the hannae image -->
+        <div class="title-above" style="top: 26%; left: 12%;">
+            Name: Hannae Wisdom of Forest<br>
+            Architect: UnSangDong Architects<br>
+            Region: Nowon-Gu, South Korea<br>
+            Year: 2017
+        </div>
+        
+        <!-- Hannae image (normal size) -->
+        <img class="clickable-area" src="hannae.jpg" style="top: 33%; left: 12%;" onclick="openFullscreen('hannae.jpg')">
+        
+        <!-- Body text next to hannae image -->
+        <div class="body-text-beside" style="top: 33%; left: 33.5%;">
+            Intersecting gabled volumes symbolize a sense of togetherness, communication and community, and the separation of forms breaks up dominance of a single shape. The frames represent the landscape around the site where mountains, forests, and trees overlap. The internal layout is centered around a repeating shelving unit that forms the walls and designates space, whilst also providing a consistent element that flows throughout the building.
+        </div>
+        
+        <!-- Overlay option image (32.25% larger) -->
+        <img class="clickable-area-large" src="overlay optiom 1.jpg" style="top: 53%; left: 11%;" onclick="openFullscreen('overlay optiom 1.jpg')">
+        
+        <!-- Text next to overlay option image -->
+        <div class="body-text-beside" style="top: 70%; left: 36.5%;">
+            Overlayed Plan and Section<br>
+            Showing how the gables form spaces through continuing downwards to create walls
+        </div>
+        
+        <!-- Roof image (32.25% larger) -->
+        <img class="clickable-area-large" src="roof.jpg" style="top: 28%; left: 61%;" onclick="openFullscreen('roof.jpg')">
+        
+        <!-- Text next to roof image -->
+        <div class="body-text-beside" style="top: 44%; left: 59%;">
+            Roof Details
+        </div>
+        
+        <!-- Circulation image (32.25% larger) -->
+        <img class="clickable-area-large" src="circulation.jpg" style="top: 54%; left: 61%;" onclick="openFullscreen('circulation.jpg')">
+        
+        <!-- Text next to circulation image -->
+        <div class="body-text-beside" style="top: 70%; left: 57%;">
+            Circulation Diagram
+        </div>
     </div>
     
     <a href="openbook2.html" id="hand-flip">
