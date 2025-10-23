@@ -42,13 +42,18 @@
         
         .clickable-area {
             position: absolute;
-            cursor: pointer;
+            cursor: grab;
             transition: opacity 0.3s;
             max-width: 192px;
             max-height: 192px;
             width: auto;
             height: auto;
             object-fit: contain;
+            user-select: none;
+        }
+        
+        .clickable-area:active {
+            cursor: grabbing;
         }
         
         .clickable-area:hover {
@@ -57,13 +62,18 @@
         
         .clickable-area-large {
             position: absolute;
-            cursor: pointer;
+            cursor: grab;
             transition: opacity 0.3s;
             max-width: 253.92px;
             max-height: 253.92px;
             width: auto;
             height: auto;
             object-fit: contain;
+            user-select: none;
+        }
+        
+        .clickable-area-large:active {
+            cursor: grabbing;
         }
         
         .clickable-area-large:hover {
@@ -186,7 +196,7 @@
         </div>
         
         <!-- Hannae image (normal size) -->
-        <img class="clickable-area" src="hannae.jpg" style="top: 33%; left: 12%;" onclick="openFullscreen('hannae.jpg')">
+        <img class="clickable-area draggable" src="hannae.jpg" style="top: 33%; left: 12%;">
         
         <!-- Body text next to hannae image -->
         <div class="body-text-beside" style="top: 33%; left: 33.5%;">
@@ -194,7 +204,7 @@
         </div>
         
         <!-- Overlay option image (32.25% larger) -->
-        <img class="clickable-area-large" src="overlay optiom 1.jpg" style="top: 53%; left: 11%;" onclick="openFullscreen('overlay optiom 1.jpg')">
+        <img class="clickable-area-large draggable" src="overlay optiom 1.jpg" style="top: 53%; left: 11%;">
         
         <!-- Text next to overlay option image -->
         <div class="body-text-beside" style="top: 70%; left: 36.5%;">
@@ -203,7 +213,7 @@
         </div>
         
         <!-- Roof image (32.25% larger) -->
-        <img class="clickable-area-large" src="roof.jpg" style="top: 28%; left: 61%;" onclick="openFullscreen('roof.jpg')">
+        <img class="clickable-area-large draggable" src="roof.jpg" style="top: 28%; left: 61%;">
         
         <!-- Text next to roof image -->
         <div class="body-text-beside" style="top: 44%; left: 59%;">
@@ -211,7 +221,7 @@
         </div>
         
         <!-- Circulation image (32.25% larger) -->
-        <img class="clickable-area-large" src="circulation.jpg" style="top: 54%; left: 61%;" onclick="openFullscreen('circulation.jpg')">
+        <img class="clickable-area-large draggable" src="circulation.jpg" style="top: 54%; left: 61%;">
         
         <!-- Text next to circulation image -->
         <div class="body-text-beside" style="top: 70%; left: 57%;">
@@ -229,6 +239,61 @@
     </div>
     
     <script>
+        let isDragging = false;
+        let draggedElement = null;
+        let startX, startY, startLeft, startTop;
+        let clickStartTime;
+        const CLICK_THRESHOLD = 200;
+        
+        document.querySelectorAll('.draggable').forEach(img => {
+            img.addEventListener('mousedown', startDrag);
+        });
+        
+        function startDrag(e) {
+            clickStartTime = Date.now();
+            draggedElement = e.target;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            const rect = draggedElement.getBoundingClientRect();
+            startLeft = rect.left;
+            startTop = rect.top;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            
+            e.preventDefault();
+        }
+        
+        function drag(e) {
+            if (!draggedElement) return;
+            
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                isDragging = true;
+                draggedElement.style.position = 'fixed';
+                draggedElement.style.left = (startLeft + dx) + 'px';
+                draggedElement.style.top = (startTop + dy) + 'px';
+                draggedElement.style.zIndex = '1000';
+            }
+        }
+        
+        function stopDrag(e) {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            
+            const clickDuration = Date.now() - clickStartTime;
+            
+            if (!isDragging && clickDuration < CLICK_THRESHOLD) {
+                openFullscreen(draggedElement.src);
+            }
+            
+            isDragging = false;
+            draggedElement = null;
+        }
+        
         function openFullscreen(imageSrc) {
             const overlay = document.getElementById('fullscreen-overlay');
             const image = document.getElementById('fullscreen-image');
@@ -241,7 +306,6 @@
             overlay.classList.remove('active');
         }
         
-        // Close fullscreen on ESC key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeFullscreen();

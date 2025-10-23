@@ -37,7 +37,6 @@ function openFullscreen(imageSrc, title) {
     const overlay = document.getElementById('fullscreen-overlay');
     const image = document.getElementById('fullscreen-image');
     const video = document.getElementById('fullscreen-video');
-    const enterButton = document.getElementById('enter-button');
     
     image.src = imageSrc;
     overlay.classList.add('active');
@@ -46,19 +45,16 @@ function openFullscreen(imageSrc, title) {
     overlay.classList.remove('playing-video');
     video.style.display = 'none';
     image.style.display = 'block';
-    enterButton.style.display = 'none';
     video.classList.remove('video-playing');
 }
 
 function closeFullscreen() {
     const overlay = document.getElementById('fullscreen-overlay');
     const video = document.getElementById('fullscreen-video');
-    const enterButton = document.getElementById('enter-button');
     overlay.classList.remove('active');
     overlay.classList.remove('playing-video');
     video.pause();
     video.currentTime = 0;
-    enterButton.style.display = 'none';
     video.classList.remove('video-playing');
 }
 
@@ -67,16 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('fullscreen-overlay');
     const image = document.getElementById('fullscreen-image');
     const video = document.getElementById('fullscreen-video');
-    const enterButton = document.getElementById('enter-button');
     
-    // Show enter button when video ends
+    // Auto-open book when video ends
     video.addEventListener('ended', () => {
-        enterButton.style.display = 'block';
+        window.location.href = 'openbook.html';
     });
     
     overlay.addEventListener('click', (e) => {
-        // Don't trigger if clicking close button or enter button
-        if (e.target.id === 'close-fullscreen' || e.target.closest('#enter-button')) return;
+        // Don't trigger if clicking close button
+        if (e.target.id === 'close-fullscreen') return;
         
         // If not playing video yet, switch to video and play
         if (!overlay.classList.contains('playing-video')) {
@@ -97,13 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeFullscreen();
-    }
-    // Trigger enter button on Enter key if button is visible
-    if (e.key === 'Enter') {
-        const enterButton = document.getElementById('enter-button');
-        if (enterButton.style.display === 'block') {
-            enterButton.click();
-        }
     }
 });
 
