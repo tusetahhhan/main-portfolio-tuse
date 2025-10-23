@@ -42,13 +42,18 @@
         
         .clickable-area {
             position: absolute;
-            cursor: pointer;
+            cursor: grab;
             transition: opacity 0.3s;
             max-width: 253.92px;
             max-height: 253.92px;
             width: auto;
             height: auto;
             object-fit: contain;
+            user-select: none;
+        }
+        
+        .clickable-area:active {
+            cursor: grabbing;
         }
         
         .clickable-area:hover {
@@ -243,8 +248,8 @@
         <img id="book-image" src="openbook.png" alt="Open Book Page 2">
         
         <!-- Left side images -->
-        <img class="clickable-area" src="new parti option2.jpg" style="top: 30%; left: 12%;" onclick="openFullscreen('new parti option2.jpg')">
-        <img class="clickable-area" src="mm3.jpg" style="top: 55%; left: 12%;" onclick="openFullscreen('mm3.jpg')">
+        <img class="clickable-area draggable" src="new parti option2.jpg" style="top: 30%; left: 12%;">
+        <img class="clickable-area draggable" src="mm3.jpg" style="top: 55%; left: 12%;">
     </div>
     
     <!-- Right side bunched images -->
@@ -271,13 +276,67 @@
     
     <script>
         let isExpanded = false;
+        let isDragging = false;
+        let draggedElement = null;
+        let startX, startY, offsetX, offsetY;
+        let clickStartTime;
+        const CLICK_THRESHOLD = 200;
+        
+        document.querySelectorAll('.draggable').forEach(img => {
+            img.addEventListener('mousedown', startDrag);
+        });
+        
+        function startDrag(e) {
+            clickStartTime = Date.now();
+            draggedElement = e.target;
+            
+            const rect = draggedElement.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            
+            e.preventDefault();
+        }
+        
+        function drag(e) {
+            if (!draggedElement) return;
+            
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                isDragging = true;
+                draggedElement.style.position = 'fixed';
+                draggedElement.style.left = (e.clientX - offsetX) + 'px';
+                draggedElement.style.top = (e.clientY - offsetY) + 'px';
+                draggedElement.style.zIndex = '1000';
+            }
+        }
+        
+        function stopDrag(e) {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            
+            const clickDuration = Date.now() - clickStartTime;
+            
+            if (!isDragging && clickDuration < CLICK_THRESHOLD) {
+                openFullscreen(draggedElement.src);
+            }
+            
+            isDragging = false;
+            draggedElement = null;
+        }
         
         function toggleGrid() {
             const bunch = document.getElementById('image-bunch');
             const images = document.querySelectorAll('.bunch-image');
             
             if (!isExpanded) {
-                // Expand - shuffle out one by one
                 bunch.classList.add('expanded');
                 
                 images.forEach((img, index) => {
@@ -288,7 +347,6 @@
                 
                 isExpanded = true;
             } else {
-                // Collapse - reverse shuffle
                 images.forEach((img, index) => {
                     setTimeout(() => {
                         if (index > 0) {
