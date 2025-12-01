@@ -1,14 +1,16 @@
 // Colored books with their positions, images, and series titles
 const coloredBooks = [
     // 1. Pink book (row 1, left section)
-    { top: '27.5%', left: '30.5%', width: '98px', height: '52px', image: 'book1.png', title: 'Series 1: The Precedents', label: '1: PRECEDENT RESEARCH AND ANALYSIS' },
+    { top: '27.5%', left: '30.5%', width: '98px', height: '52px', image: 'book1.png', title: 'Series 1: The Precedents', label: '1: PRECEDENT RESEARCH AND ANALYSIS', link: 'openbook.html' },
     // 2. Yellow book (row 1, right)
-    { top: '3.5%', left: '46%', width: '172px', height: '55px', image: 'book2.png', title: 'Series 2', label: '2: SITE INFORMATION' },
+    { top: '3.5%', left: '46%', width: '172px', height: '55px', image: 'book2.png', title: 'Series 2', label: '2: SITE INFORMATION', link: 'sitebook.html' },
     // 3. Yellow/orange books (row 2, left)
-    { top: '18.5%', left: '60.5%', width: '195px', height: '66px', image: 'book3.png', title: 'Series 3', label: '3: DRAWINGS' },
+    { top: '18.5%', left: '60.5%', width: '195px', height: '66px', image: 'book3.png', title: 'Series 3', label: '3: DRAWINGS', link: 'drawingsbook.html' },
     // 4. Orange book (row 2, middle-right)
-    { top: '60%', left: '30.7%', width: '126px', height: '62px', image: 'book4.png', title: 'Series 4', label: '4: DOCUMENTATION' }
+    { top: '60%', left: '30.7%', width: '126px', height: '62px', image: 'book4.png', title: 'Series 4', label: '4: DOCUMENTATION', link: 'documentationbook.html' }
 ];
+
+let currentBookLink = '';
 
 function initializeBooks() {
     const container = document.getElementById('books-container');
@@ -20,7 +22,7 @@ function initializeBooks() {
         bookDiv.style.left = book.left;
         bookDiv.style.width = book.width;
         bookDiv.style.height = book.height;
-        bookDiv.onclick = () => openFullscreen(book.image, book.title);
+        bookDiv.onclick = () => openFullscreen(book.image, book.title, book.link);
         bookDiv.style.cursor = 'pointer';
         
         // Create label indicator with full text
@@ -33,10 +35,13 @@ function initializeBooks() {
     });
 }
 
-function openFullscreen(imageSrc, title) {
+function openFullscreen(imageSrc, title, link) {
     const overlay = document.getElementById('fullscreen-overlay');
     const image = document.getElementById('fullscreen-image');
     const video = document.getElementById('fullscreen-video');
+    
+    // Store the link for this book
+    currentBookLink = link;
     
     image.src = imageSrc;
     overlay.classList.add('active');
@@ -64,9 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const image = document.getElementById('fullscreen-image');
     const video = document.getElementById('fullscreen-video');
     
-    // Auto-open book when video ends
+    // Auto-open book when video ends - uses the stored link
     video.addEventListener('ended', () => {
-        window.location.href = 'openbook.html';
+        window.location.href = currentBookLink;
     });
     
     overlay.addEventListener('click', (e) => {

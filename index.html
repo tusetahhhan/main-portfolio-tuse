@@ -11,25 +11,29 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script>
+    console.log("Script started");
     const container = document.getElementById("container");
+    console.log("Container found:", container);
 
     // Posters in order: structures → buk → airlume → flowform
+    // Posters are in 'first page' subfolder
     const posters = [
-      "structuresposter.jpg",
-      "bukposter.jpg",
-      "airlumeposter.jpg",
-      "flowformposter.jpg"
+      "first page/structuresposter.jpg",
+      "first page/bukposter.jpg",
+      "first page/airlumeposter.jpg",
+      "first page/flowformposter.jpg"
     ];
 
-    // Links for each poster (relative paths to other folders)
+    // Links for each poster
+    // Since index.html is in main-portfolio, these are relative to that folder
     const projectLinks = [
-      "structures.html",
-      "../library/bookwall.html",
-      "../balloon/gallery.html",
-      "flowform.html"
+      "first page/structures.html",
+      "library/bookwall.html",
+      "balloon/gallery.html",
+      "first page/flowform.html"
     ];
 
-    // Letter images (PNGs with transparency) - now in letters/ subfolder
+    // Letter images (PNGs with transparency) - in letters/ folder at same level as index.html
     const baseLetters = [
       "letters/flowform r.png", "letters/flowform w.png", "letters/flowform o.png",
       "letters/flowform m.png", "letters/flowform f.png", "letters/flowform l.png",
@@ -43,20 +47,38 @@
     // Multiply letters for density
     const lettersSrc = [...baseLetters, ...baseLetters, ...baseLetters];
     const letters = [];
+    
+    console.log("Total letters to load:", lettersSrc.length);
 
     // Scatter letters randomly
-    lettersSrc.forEach((src) => {
+    lettersSrc.forEach((src, index) => {
       const img = document.createElement("img");
       img.classList.add("letter");
       img.src = src;
       img.style.left = Math.random() * window.innerWidth + "px";
       img.style.top = Math.random() * window.innerHeight + "px";
+      
+      // Add error handler
+      img.onerror = function() {
+        console.error(`Letter ${index} failed to load:`, src);
+      };
+      
+      img.onload = function() {
+        console.log(`Letter ${index} loaded:`, src);
+      };
+      
       container.appendChild(img);
       letters.push(img);
     });
 
+    console.log("Letters added to DOM, starting GSAP timeline...");
+
     // GSAP Timeline
-    const tl = gsap.timeline({ delay: 0.5 });
+    const tl = gsap.timeline({ 
+      delay: 0.5,
+      onStart: () => console.log("Timeline started"),
+      onComplete: () => console.log("Timeline completed")
+    });
 
     // Step 1: Gather letters into the middle
     tl.to(letters, {
@@ -64,39 +86,80 @@
       x: (i) => window.innerWidth / 2 - letters[i].offsetLeft - 30,
       y: (i) => window.innerHeight / 2 - letters[i].offsetTop - 30,
       ease: "power2.inOut",
-      stagger: 0.01
+      stagger: 0.01,
+      onComplete: () => console.log("Step 1 complete: Letters gathered")
     });
 
     // Step 2: Fade out letters
     tl.to(letters, {
       opacity: 0,
       duration: 1,
-      ease: "power1.out"
+      ease: "power1.out",
+      onComplete: () => console.log("Step 2 complete: Letters faded out")
     });
 
     // Step 3: Fade in posters in a horizontal line
     tl.add(() => {
-      const spacing = 160;
+      console.log("Step 3 starting: Creating posters");
+      
+      // Remove all letters from DOM to prevent interference
+      letters.forEach(letter => letter.remove());
+      console.log("Letters removed from DOM");
+      
+      const spacing = 200; // Spacing between posters
       const startX = window.innerWidth / 2 - ((posters.length - 1) * spacing) / 2;
-      const yPos = window.innerHeight / 2 + 48;
+      const yPos = window.innerHeight / 2;
+      
+      console.log(`Poster layout: startX=${startX}, yPos=${yPos}, spacing=${spacing}`);
 
       posters.forEach((src, i) => {
+        const xPos = startX + i * spacing;
+        console.log(`Creating poster ${i}: ${src} at position (${xPos}, ${yPos})`);
+        
         const link = document.createElement("a");
         link.href = projectLinks[i];
         link.target = "_self";
+        link.style.position = "absolute";
+        link.style.left = xPos + "px";
+        link.style.top = yPos + "px";
+        link.style.transform = "translate(-50%, -50%)";
+        link.style.zIndex = "100";
 
         const img = document.createElement("img");
         img.classList.add("poster");
         img.src = src;
         img.style.opacity = 0;
-        img.style.left = startX + i * spacing + "px";
-        img.style.top = yPos + "px";
+        
+        // Add error handler and success handler
+        img.onerror = function() {
+          console.error(`❌ POSTER ${i} FAILED TO LOAD:`, src);
+          console.error("Full path attempted:", img.src);
+          // Show a placeholder
+          link.innerHTML = `<div style="background: #ddd; padding: 20px; border: 2px solid #999; color: #333; font-family: Arial; text-align: center; width: 150px;">${src}<br><small>Image not found</small></div>`;
+        };
+        
+        img.onload = function() {
+          console.log(`✅ Poster ${i} loaded successfully:`, src);
+        };
 
         link.appendChild(img);
         container.appendChild(link);
+        console.log(`Poster ${i} added to container`);
 
-        gsap.to(img, { opacity: 1, duration: 1.2, delay: 0.2 });
+        // Staggered fade-in animation
+        gsap.to(img, { 
+          opacity: 1, 
+          duration: 1.2, 
+          delay: 0.2 + i * 0.15,
+          ease: "power2.out",
+          onStart: () => console.log(`Animating poster ${i}`),
+          onComplete: () => console.log(`Poster ${i} animation complete`)
+        });
       });
+      
+      // Debug: log what's in the container
+      console.log("Total children in container:", container.children.length);
+      console.log("Step 3 complete: All posters created");
     });
   </script>
 </body>
