@@ -6,6 +6,7 @@
     <title>Bookwall</title>
     <link rel="stylesheet" href="bookwall-style.css">
     <style>
+        /* --- NAVIGATION ARROWS --- */
         #right-arrow {
             position: absolute;
             right: 30px;
@@ -43,9 +44,37 @@
             font-size: 14px;
             font-weight: bold;
             text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
-        
-        .render-view {
+
+        /* --- CLOSE BUTTON --- */
+        #close-fullscreen {
+            position: fixed;
+            top: 30px;
+            right: 40px;
+            font-size: 50px;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2147483647;
+            line-height: 1;
+            padding-bottom: 5px;
+            transition: background 0.3s;
+        }
+
+        #close-fullscreen:hover {
+            background: rgba(255, 0, 0, 0.7);
+        }
+
+        /* --- PANORAMA VIEWER STYLES --- */
+        #panorama-overlay {
             display: none;
             position: fixed;
             top: 0;
@@ -54,55 +83,122 @@
             height: 100vh;
             background-color: black;
             z-index: 2000;
-            justify-content: center;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        #panorama-overlay.active {
+            display: block;
+        }
+
+        #panorama-overlay:active {
+            cursor: grabbing;
+        }
+
+        /* SCENE CONTAINERS */
+        .scene {
+            width: 100%;
+            height: 100%;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            display: none;
+            flex-wrap: nowrap;
             align-items: center;
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
         }
         
-        .render-view.active {
-            display: flex;
+        .scene.active-scene {
+            display: flex; 
         }
-        
-        .render-view img {
-            width: 100vw;
+
+        .scene::-webkit-scrollbar { 
+            display: none; 
+        }
+
+        .img-wrapper {
+            position: relative;
             height: 100vh;
-            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .pan-img {
+            height: 100vh;
+            width: auto;
+            display: block;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* --- HOTSPOTS (Foggy Vignette) --- */
+        .hotspot {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            
+            /* No Border */
+            border: none;
+            
+            /* Foggy Vignette */
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0) 20%, rgba(255,255,255,0.2) 80%, rgba(255,255,255,0.4) 100%);
+            box-shadow: 0 0 20px rgba(255,255,255,0.2); 
+            
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            border-radius: 50% / 10%; 
+        }
+
+        .hotspot:hover {
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0) 10%, rgba(255,255,255,0.4) 80%, rgba(255,255,255,0.6) 100%);
+            box-shadow: 0 0 30px rgba(255,255,255,0.6);
         }
         
-        .render-arrow {
+        /* UPDATED: Reads the text from the HTML 'data-label' attribute */
+        .hotspot::after {
+            content: attr(data-label); 
             position: absolute;
-            right: 30px;
             top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            z-index: 2001;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.3s;
-        }
-        
-        .render-arrow:hover {
-            transform: translateY(-50%) scale(1.1);
-        }
-        
-        .render-arrow .arrow-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: white;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 10px;
+            text-align: center;
+            opacity: 0;
+            text-shadow: 0 2px 4px black;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap; /* Keeps text on one line */
         }
-        
-        .go-back-arrow {
+
+        .hotspot:hover::after {
+            opacity: 1;
+        }
+
+        /* INSTRUCTIONS */
+        .pan-instructions {
             position: absolute;
-            left: calc(50% + 1.5in);
-            bottom: calc(50px + 2in);
+            bottom: 50px;
+            left: 50%;
             transform: translateX(-50%);
+            color: rgba(255,255,255,0.7);
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            pointer-events: none;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+            z-index: 2002;
+        }
+
+        /* BACK BUTTON */
+        .close-pan-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
             cursor: pointer;
             z-index: 2001;
             display: flex;
@@ -110,71 +206,90 @@
             align-items: center;
             transition: transform 0.3s;
         }
-        
-        .go-back-arrow:hover {
-            transform: translateX(-50%) scale(1.1);
+
+        .close-pan-btn:hover {
+            transform: scale(1.1);
         }
-        
-        .go-back-arrow .arrow-icon {
+
+        .close-pan-btn .arrow-icon {
             width: 50px;
             height: 50px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             color: white;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
-        
-        .go-back-arrow .arrow-text {
+
+        .close-pan-btn .arrow-text {
             font-family: Arial, sans-serif;
             color: white;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
+
     </style>
 </head>
 <body>
+
     <div id="bookshelf-container">
-        <a href="../first page/index.html" id="back-arrow">←</a>
-        
-        <!-- Clickable book areas will be added dynamically -->
+        <a href="../first page/index.html" id="back-arrow" style="position: absolute; top:30px; left:30px; z-index:100; text-decoration:none; font-size:30px; color:black;">←</a>
         <div id="books-container"></div>
         
-        <!-- Right arrow for navigation -->
-        <div id="right-arrow" onclick="showRender1()">
+        <div id="right-arrow" onclick="openPanorama()">
             <div class="arrow-icon">→</div>
-            <div class="arrow-text">LOOK AROUND!</div>
+            <div class="arrow-text">LOOK AROUND</div>
         </div>
     </div>
     
-    <!-- Render 1 View (redner2.2.jpg) -->
-    <div id="render1-view" class="render-view">
-        <img src="redner2.2.jpg" alt="Render 1">
-        <div class="render-arrow" onclick="showRender2()">
-            <div class="arrow-icon">→</div>
-        </div>
-    </div>
-    
-    <!-- Render 2 View (render1.2.jpg) -->
-    <div id="render2-view" class="render-view">
-        <img src="render1.2.jpg" alt="Render 2">
-        <div class="render-arrow" onclick="showRender3()">
-            <div class="arrow-icon">→</div>
-        </div>
-    </div>
-    
-    <!-- Render 3 View (render3.2.jpg) -->
-    <div id="render3-view" class="render-view">
-        <img src="render3.2.jpg" alt="Render 3">
-        <div class="go-back-arrow" onclick="goBackToBookwall()">
+    <div id="panorama-overlay">
+        <div class="close-pan-btn" onclick="closePanorama()">
             <div class="arrow-icon">←</div>
             <div class="arrow-text">GO BACK</div>
         </div>
+
+        <div class="scene active-scene" id="scene-inside">
+            <div class="img-wrapper">
+                <img class="pan-img" src="redner2.2.jpg" alt="Interior View 1">
+            </div>
+            
+            <div class="img-wrapper">
+                <img class="pan-img" src="render1.2.jpg" alt="Interior View 2">
+                
+                <div class="hotspot" onclick="switchScene('outside')" 
+                     data-label="CLICK TO EXIT"
+                     style="
+                        top: 58%; 
+                        left: 54%; 
+                        width: 0.7in; 
+                        height: 2.2in;
+                     ">
+                </div>
+            </div>
+        </div>
+
+        <div class="scene" id="scene-outside">
+            <div class="img-wrapper">
+                <img class="pan-img" src="render3.2.jpg" alt="Exterior View">
+                
+                <div class="hotspot" onclick="switchScene('inside')" 
+                     data-label="CLICK TO ENTER"
+                     style="
+                        top: 70%; 
+                        left: 56%; 
+                        width: 0.9in; 
+                        height: 3.2in;
+                     ">
+                </div>
+            </div>
+        </div>
+
+        <div class="pan-instructions">CLICK & DRAG TO LOOK • CLICK DOOR TO ENTER/EXIT</div>
     </div>
     
     <div id="fullscreen-overlay">
@@ -184,23 +299,61 @@
     </div>
     
     <script src="bookwall-script.js"></script>
+    
     <script>
-        function showRender1() {
-            document.getElementById('render1-view').classList.add('active');
+        const panOverlay = document.getElementById('panorama-overlay');
+        const scenes = document.querySelectorAll('.scene');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        function openPanorama() {
+            panOverlay.classList.add('active');
         }
-        
-        function showRender2() {
-            document.getElementById('render1-view').classList.remove('active');
-            document.getElementById('render2-view').classList.add('active');
+
+        function closePanorama() {
+            panOverlay.classList.remove('active');
+            switchScene('inside');
         }
-        
-        function showRender3() {
-            document.getElementById('render2-view').classList.remove('active');
-            document.getElementById('render3-view').classList.add('active');
+
+        function switchScene(location) {
+            scenes.forEach(scene => scene.classList.remove('active-scene'));
+            if (location === 'outside') {
+                document.getElementById('scene-outside').classList.add('active-scene');
+            } else {
+                document.getElementById('scene-inside').classList.add('active-scene');
+            }
         }
+
+        scenes.forEach(scene => {
+            scene.addEventListener('mousedown', (e) => {
+                if(e.target.classList.contains('hotspot')) return;
+                isDown = true;
+                panOverlay.style.cursor = 'grabbing';
+                startX = e.pageX - scene.offsetLeft;
+                scrollLeft = scene.scrollLeft;
+            });
+
+            scene.addEventListener('mouseleave', () => { isDown = false; panOverlay.style.cursor = 'grab'; });
+            scene.addEventListener('mouseup', () => { isDown = false; panOverlay.style.cursor = 'grab'; });
+
+            scene.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - scene.offsetLeft;
+                const walk = (x - startX) * 2;
+                scene.scrollLeft = scrollLeft - walk;
+            });
+        });
         
-        function goBackToBookwall() {
-            document.getElementById('render3-view').classList.remove('active');
+        function closeFullscreen() {
+            const overlay = document.getElementById('fullscreen-overlay');
+            const video = document.getElementById('fullscreen-video');
+            overlay.classList.remove('active');
+            overlay.classList.remove('playing-video');
+            video.pause();
+            video.currentTime = 0;
+            video.classList.remove('video-playing');
         }
     </script>
 </body>

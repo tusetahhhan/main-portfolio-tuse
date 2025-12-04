@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model: Blueprint Unroll</title>
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/neue-haas-grotesk-display-pro');
+
+        body {
+            background-color: #e0e0e0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Neue Haas Grotesk Display Pro', sans-serif;
+            overflow: hidden;
+            position: relative; /* Needed for absolute positioning of arrow */
+        }
+
+        /* BACK ARROW (Consistent Style) */
+        #back-arrow {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: black;
+            transition: all 0.3s;
+            text-decoration: none;
+            z-index: 200; /* High z-index to sit on top of everything */
+        }
+        
+        #back-arrow:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* INSTRUCTIONS */
+        .instructions {
+            position: absolute;
+            top: 40px;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 100;
+            color: #555;
+        }
+        .instructions h1 { font-size: 14px; letter-spacing: 2px; margin: 0; }
+        .instructions p { font-size: 10px; margin-top: 5px; opacity: 0.7; }
+
+        /* MAIN CONTAINER */
+        .canvas-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* THE SCROLL TUBE */
+        .scroll-tube {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 85%;
+            background: linear-gradient(to right, #111, #444, #111);
+            border-radius: 20px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.4);
+            z-index: 50;
+            transition: all 1.2s cubic-bezier(0.2, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .scroll-tube::before, .scroll-tube::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background: #222;
+            border-top: 1px solid #666;
+        }
+        .scroll-tube::before { top: 5px; }
+        .scroll-tube::after { bottom: 5px; }
+
+        /* THE PAPER (IMAGE AREA) */
+        .paper-roll {
+            position: relative;
+            height: 80%;
+            width: 0px; /* Initially hidden */
+            background-color: white;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: width 1.2s cubic-bezier(0.2, 1, 0.3, 1);
+            transform-origin: left center;
+        }
+
+        /* UNROLLED STATE */
+        .canvas-container.unrolled .scroll-tube {
+            left: 100%;
+            transform: translateX(-100%) rotate(360deg);
+        }
+
+        .canvas-container.unrolled .paper-roll {
+            width: 600px;
+        }
+
+        /* IMAGE LAYERS */
+        .paper-content {
+            position: absolute;
+            top: 0; 
+            left: 0;
+            width: 600px;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .paper-content.active { opacity: 1; }
+
+        /* NAVIGATION BUTTONS */
+        .controls {
+            position: absolute;
+            bottom: -60px;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.5s 1s;
+        }
+        
+        .canvas-container.unrolled .controls { opacity: 1; }
+
+        .btn {
+            background: none;
+            border: 1px solid #555;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .btn:hover, .btn.selected {
+            background: #333;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <a href="bookwall.html" id="back-arrow">←</a>
+
+    <div class="instructions">
+        <h1>PROJECT ARCHIVE</h1>
+        <p>CLICK TUBE TO UNROLL DRAWINGS</p>
+    </div>
+
+    <div class="canvas-container" id="container">
+        
+        <div class="paper-roll">
+            <div class="paper-content active" id="img-structure" style="background-image: url('m5.jpg');"></div>
+            
+            <div class="paper-content" id="img-detail" style="background-image: url('m4.jpg');"></div>
+            
+            <div class="paper-content" id="img-cover" style="background-image: url('cover.jpg');"></div>
+
+            <div class="paper-content" id="img-extra" style="background-image: url('IMG_5485.jpg');"></div>
+        </div>
+
+        <div class="scroll-tube" id="tube" onclick="toggleRoll()">
+            <span style="writing-mode: vertical-rl; color: #888; font-size: 9px; letter-spacing: 2px;">PULL TO OPEN</span>
+        </div>
+
+        <div class="controls">
+            <button class="btn selected" onclick="switchImage('structure', this)">Structure</button>
+            <button class="btn" onclick="switchImage('detail', this)">Detail</button>
+            <button class="btn" onclick="switchImage('cover', this)">Context</button>
+            <button class="btn" onclick="switchImage('extra', this)">Model View 4</button>
+        </div>
+
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        let isOpen = false;
+
+        function toggleRoll() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                container.classList.add('unrolled');
+            } else {
+                container.classList.remove('unrolled');
+            }
+        }
+
+        function switchImage(type, btn) {
+            // Remove active class from all images
+            document.querySelectorAll('.paper-content').forEach(el => el.classList.remove('active'));
+            
+            // Add active class to selected image
+            document.getElementById('img-' + type).classList.add('active');
+
+            // Update button styles
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+    </script>
+
+</body>
+</html>

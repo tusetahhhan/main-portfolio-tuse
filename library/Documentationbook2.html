@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Book</title>
+    <title>Documentation Book - Page 2</title>
     <style>
         @import url('https://fonts.cdnfonts.com/css/neue-haas-grotesk-display-pro');
         
@@ -40,64 +40,24 @@
             display: block;
         }
         
-        .clickable-area {
+        .clickable-area-fullpage {
             position: absolute;
             cursor: grab;
             transition: opacity 0.3s;
-            max-width: 192px;
-            max-height: 192px;
+            max-width: 500px;
+            max-height: 700px;
             width: auto;
             height: auto;
             object-fit: contain;
             user-select: none;
         }
         
-        .clickable-area:active {
+        .clickable-area-fullpage:active {
             cursor: grabbing;
         }
         
-        .clickable-area:hover {
+        .clickable-area-fullpage:hover {
             opacity: 0.7;
-        }
-        
-        .clickable-area-large {
-            position: absolute;
-            cursor: grab;
-            transition: opacity 0.3s;
-            max-width: 253.92px;
-            max-height: 253.92px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            user-select: none;
-        }
-        
-        .clickable-area-large:active {
-            cursor: grabbing;
-        }
-        
-        .clickable-area-large:hover {
-            opacity: 0.7;
-        }
-        
-        .title-above {
-            position: absolute;
-            font-family: 'Neue Haas Grotesk Display Pro', Arial, sans-serif;
-            font-size: 9px;
-            font-weight: 600;
-            line-height: 1.2;
-            color: #000;
-            max-width: 180px;
-        }
-        
-        .body-text-beside {
-            position: absolute;
-            font-family: 'Neue Haas Grotesk Display Pro', Arial, sans-serif;
-            font-size: 8px;
-            font-weight: 400;
-            line-height: 1.3;
-            color: #333;
-            max-width: 110px;
         }
         
         #back-arrow {
@@ -124,7 +84,26 @@
             background: rgba(0, 0, 0, 0.2);
         }
         
-        #hand-flip {
+        #hand-flip-back {
+            position: absolute;
+            bottom: -50px;
+            left: 200px;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s;
+            transform: scaleX(-1);
+        }
+        
+        #hand-flip-back:hover {
+            transform: scaleX(-1) scale(1.1);
+        }
+        
+        #hand-flip-back img {
+            width: 150px;
+            height: auto;
+        }
+        
+        #hand-flip-forward {
             position: absolute;
             bottom: -50px;
             right: 200px;
@@ -133,11 +112,11 @@
             transition: transform 0.3s;
         }
         
-        #hand-flip:hover {
+        #hand-flip-forward:hover {
             transform: scale(1.1);
         }
         
-        #hand-flip img {
+        #hand-flip-forward img {
             width: 150px;
             height: auto;
         }
@@ -185,59 +164,24 @@
     <a href="bookwall.html" id="back-arrow">←</a>
     
     <div id="book-container">
-        <img id="book-image" src="openbook.png" alt="Open Book">
+        <img id="book-image" src="openbook.png" alt="Documentation Book Page 2">
         
-        <!-- Title above the hannae image -->
-        <div class="title-above" style="top: 26%; left: 12%;">
-            Name: Hannae Wisdom of Forest<br>
-            Architect: UnSangDong Architects<br>
-            Region: Nowon-Gu, South Korea<br>
-            Year: 2017
-        </div>
-        
-        <!-- Hannae image (normal size) -->
-        <img class="clickable-area draggable" src="hannae.jpg" style="top: 33%; left: 12%;">
-        
-        <!-- Body text next to hannae image -->
-        <div class="body-text-beside" style="top: 33%; left: 33.5%;">
-            Intersecting gabled volumes symbolize a sense of togetherness, communication and community, and the separation of forms breaks up dominance of a single shape. The frames represent the landscape around the site where mountains, forests, and trees overlap. The internal layout is centered around a repeating shelving unit that forms the walls and designates space, whilst also providing a consistent element that flows throughout the building.
-        </div>
-        
-        <!-- Overlay option image (32.25% larger) -->
-        <img class="clickable-area-large draggable" src="overlay optiom 1.jpg" style="top: 53%; left: 11%;">
-        
-        <!-- Text next to overlay option image -->
-        <div class="body-text-beside" style="top: 70%; left: 36.5%;">
-            Overlayed Plan and Section<br>
-            Showing how the gables form spaces through continuing downwards to create walls
-        </div>
-        
-        <!-- Roof image (32.25% larger) -->
-        <img class="clickable-area-large draggable" src="roof.jpg" style="top: 28%; left: 61%;">
-        
-        <!-- Text next to roof image -->
-        <div class="body-text-beside" style="top: 44%; left: 59%;">
-            Roof Details
-        </div>
-        
-        <!-- Circulation image (32.25% larger) -->
-        <img class="clickable-area-large draggable" src="circulation.jpg" style="top: 54%; left: 61%;">
-        
-        <!-- Text next to circulation image -->
-        <div class="body-text-beside" style="top: 70%; left: 57%;">
-            Circulation Diagram
-        </div>
+        <!-- Full page image -->
+        <img class="clickable-area-fullpage draggable" src="m4.jpg" style="top: 20%; left: 35%;">
     </div>
     
-    <a href="openbook2.html" id="hand-flip">
-        <img src="handflipping.png" alt="Flip Page">
+    <a href="documentationbook.html" id="hand-flip-back">
+        <img src="handflipping.png" alt="Flip Back">
+    </a>
+    
+    <a href="documentationbook3.html" id="hand-flip-forward">
+        <img src="handflipping.png" alt="Flip Forward">
     </a>
     
     <div id="fullscreen-overlay">
         <button id="close-fullscreen" onclick="closeFullscreen()">&times;</button>
         <img id="fullscreen-image" src="" alt="Fullscreen view">
     </div>
-    
     
     <script>
         let isDragging = false;
