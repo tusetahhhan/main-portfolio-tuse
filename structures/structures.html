@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structures</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+        }
+
+        /* Navigation Button */
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border: 1px solid white;
+            border-radius: 5px;
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+        
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* The Container for the Deck */
+        .deck-container {
+            position: relative;
+            height: 400px; /* Adjust based on your image height */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Images start invisible for a split second */
+            opacity: 0; 
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* The Cards (Images) */
+        .card {
+            position: absolute;
+            height: 100%;
+            width: auto;
+            /* Keeps aspect ratio */
+            max-width: 300px; 
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            cursor: pointer;
+            
+            /* The 'Stack' Position: Start perfectly centered */
+            left: 50%;
+            transform: translate(-50%, 0) scale(0.8);
+            
+            /* Smooth transitions for the wave effect */
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: bottom center;
+        }
+
+        /* Helper Text */
+        #hint {
+            position: fixed;
+            bottom: 50px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeIn 2s 1s forwards; /* Fades in after animation */
+        }
+
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="home-btn">← Back to Home</a>
+
+    <div class="deck-container" id="deck">
+        </div>
+
+    <div id="hint">Hover to explore</div>
+
+    <script>
+        // Your Image List
+        const images = [
+            'structures1.png',
+            'structures2.png',
+            'structures3.png',
+            'structures4.png',
+            'structures5.png',
+            'structures6.png',
+            'structures7.png',
+            'structures8.png'
+        ];
+
+        const deck = document.getElementById('deck');
+        const cardElements = [];
+
+        // 1. Create the Stack
+        images.forEach((src, index) => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.classList.add('card');
+            
+            // Stagger z-index so the last one is on top initially
+            img.style.zIndex = index;
+            
+            // Click to open full image
+            img.onclick = () => window.open(src, '_blank');
+
+            deck.appendChild(img);
+            cardElements.push(img);
+        });
+
+        // 2. The "Opening" Animation
+        // We wait 500ms, then spread them out
+        setTimeout(() => {
+            spreadCards();
+        }, 500);
+
+        function spreadCards() {
+            const totalWidth = window.innerWidth * 0.8; // Use 80% of screen width
+            const startX = (window.innerWidth - totalWidth) / 2;
+            const step = totalWidth / (images.length - 1);
+
+            cardElements.forEach((card, index) => {
+                // Calculate the final position for this card
+                const finalLeft = startX + (step * index);
+                
+                // Store this "home" position on the element so we remember it
+                card.dataset.homeX = finalLeft;
+
+                // Apply the move
+                // We use 'left' for position and 'transform' for the wave effect later
+                card.style.left = finalLeft + 'px';
+                
+                // Reset transform to stand up straight
+                card.style.transform = 'translate(-50%, 0) scale(1)';
+            });
+        }
+
+        // 3. The "Wave" Logic
+        document.addEventListener('mousemove', (e) => {
+            // Only run this if the cards are already spread out (checked by a flag or class)
+            // Ideally, we just check if the animation time has passed.
+            
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+
+            // Check if mouse is near the vertical center of the screen (where images are)
+            const centerY = window.innerHeight / 2;
+            const distY = Math.abs(mouseY - centerY);
+
+            // Only wave if mouse is somewhat near the strip (within 300px vertically)
+            if (distY > 300) {
+                // Reset if mouse moves away
+                cardElements.forEach(card => {
+                   card.style.transform = 'translate(-50%, 0) scale(1)';
+                   card.style.zIndex = 1;
+                });
+                return;
+            }
+
+            cardElements.forEach((card, index) => {
+                const homeX = parseFloat(card.dataset.homeX);
+                
+                // Calculate distance between Mouse and this Card's center
+                const distX = Math.abs(mouseX - homeX);
+                
+                // THE WAVE FORMULA
+                // If distance is small, scale is big. If distance is big, scale is 1.
+                // We divide by 400 to define the "width" of the wave influence
+                let waveIntensity = Math.max(0, 1 - (distX / 300));
+
+                // Scale: Goes from 1.0 to 1.5 based on intensity
+                const scale = 1 + (waveIntensity * 0.5);
+                
+                // Lift: Goes up by 50px based on intensity
+                const lift = waveIntensity * -50;
+
+                // Apply
+                card.style.transform = `translate(-50%, ${lift}px) scale(${scale})`;
+                
+                // Dynamic Z-Index: The zoomed item must be on top
+                // We use Math.round to make the closest item have the highest number
+                card.style.zIndex = 100 + Math.round(waveIntensity * 100);
+            });
+        });
+
+        // Handle Window Resize (re-calculate positions)
+        window.addEventListener('resize', () => {
+            spreadCards();
+        });
+
+    </script>
+</body>
+</html>

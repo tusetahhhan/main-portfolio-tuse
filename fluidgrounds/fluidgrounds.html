@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluid Grounds</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            margin: 0;
+            background-color: #ffffff;
+            min-height: 100vh;
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* WATER BACKGROUND */
+        .water-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url('wave-texture.jpg'); 
+            background-size: cover; background-position: center;
+            opacity: 0.4; 
+            z-index: 10;  
+            pointer-events: none; 
+        }
+
+        /* GRID LAYOUT */
+        #gallery-container {
+            position: relative;
+            width: 90vw; max-width: 1200px; 
+            margin: 0 auto; padding: 80px 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 120px 40px; 
+            justify-items: center; align-items: start;
+        }
+
+        /* ITEM WRAPPER */
+        .gallery-item {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 70px; 
+            position: relative; 
+            z-index: 20; 
+            width: 100%; max-width: 250px; 
+        }
+
+        /* TITLE STYLING */
+        .gallery-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px; 
+            font-weight: 700; 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+            color: #000000; 
+            background: rgba(255, 255, 255, 0.9); 
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            position: relative;
+            z-index: 100; 
+        }
+
+        /* IMAGES */
+        .gallery-img {
+            width: 100%; aspect-ratio: 1 / 1; object-fit: cover;
+            position: relative;
+            border: 4px solid white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            --x: 6px; --y: 6px;
+            box-shadow: 
+                calc(1 * var(--x)) calc(1 * var(--y)) 0 #E0E7FF, 
+                calc(2 * var(--x)) calc(2 * var(--y)) 0 #C7D2FE, 
+                calc(3 * var(--x)) calc(3 * var(--y)) 0 #A5B4FC, 
+                calc(4 * var(--x)) calc(4 * var(--y)) 0 #818CF8, 
+                calc(5 * var(--x)) calc(5 * var(--y)) 0 #6366F1;
+        }
+
+        .gallery-img:hover {
+            transform: translate(calc(-1 * var(--x)), calc(-1 * var(--y))) scale(1.05);
+            box-shadow: 
+                calc(1.5 * var(--x)) calc(1.5 * var(--y)) 0 #E0E7FF, 
+                calc(3.0 * var(--x)) calc(3.0 * var(--y)) 0 #C7D2FE, 
+                calc(4.5 * var(--x)) calc(4.5 * var(--y)) 0 #A5B4FC, 
+                calc(6.0 * var(--x)) calc(6.0 * var(--y)) 0 #818CF8, 
+                calc(7.5 * var(--x)) calc(7.5 * var(--y)) 0 #6366F1;
+        }
+
+        /* NEW: SIDE ARROW BUTTON */
+        .nav-arrow {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px; height: 60px;
+            background: #fff;
+            border: 2px solid #000;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #000;
+            cursor: pointer;
+            text-decoration: none; /* Removes underline from link */
+            z-index: 9000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .nav-arrow:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* FULLSCREEN OVERLAY */
+        #fullscreen-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 10000; display: none; 
+            align-items: center; justify-content: center;
+            cursor: pointer; overflow: hidden;
+        }
+        #fullscreen-image {
+            max-width: 90vw; max-height: 85vh; object-fit: contain;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: transform 0.1s linear; transform-origin: center center;
+        }
+        #fullscreen-instructions {
+            position: absolute; bottom: 30px; color: #333; font-size: 12px;
+            letter-spacing: 1px; pointer-events: none;
+            background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px;
+        }
+        
+        #fullscreen-title {
+            position: absolute; top: 30px; 
+            color: #000; font-size: 16px; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            background: #fff; padding: 10px 20px; 
+            border: 1px solid #ccc; border-radius: 4px;
+            z-index: 10001; pointer-events: none;
+        }
+
+        /* INTRO VIDEO */
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #fff; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease; pointer-events: none;
+        }
+        #intro-video { width: 100%; height: 100%; object-fit: cover; }
+        .loading-text { position: absolute; bottom: 20px; color: #999; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div id="intro-overlay">
+        <video id="intro-video" muted playsinline>
+            <source src="../wavegif.mp4" type="video/mp4">
+        </video>
+        <div class="loading-text">Loading Intro...</div>
+    </div>
+
+    <div id="fullscreen-overlay" onclick="handleOverlayClick()">
+        <div id="fullscreen-title"></div>
+        <img id="fullscreen-image" src="" alt="Fullscreen View">
+        <div id="fullscreen-instructions">CLICK TO NEXT/CLOSE • SCROLL TO ZOOM</div>
+    </div>
+
+    <a href="panorama.html" class="nav-arrow">➜</a>
+
+    <div class="water-overlay"></div>
+
+    <div id="gallery-container">
+        <div class="gallery-item">
+            <img src="FINALCOLOR.jpg" class="gallery-img" 
+                 style="--x: 10px; --y: 10px;" 
+                 onclick="openFullscreen(this.src, 'PROGRAM DIAGRAM')" 
+                 alt="Program Diagram">
+            <div class="gallery-title">PROGRAM DIAGRAM</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="FINALROOF.jpg" class="gallery-img" 
+                 style="--x: -0px; --y: 10px;" 
+                 onclick="openSequence([
+                    {src: 'FINALROOF.jpg', title: 'ROOF PLAN'},
+                    {src: 'FINALWATER1.jpg', title: 'LOW TIDE PLAN'},
+                    {src: 'FINALWATER2.jpg', title: 'HIGH TIDE PLAN'}
+                 ])"
+                 alt="Roof Plan">
+            <div class="gallery-title">ROOF PLAN</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="FINALPLAN1.JPG" class="gallery-img" 
+                 style="--x: -10px; --y: 10px;" 
+                 onclick="openFullscreen(this.src, 'PLAN')"
+                 alt="Plan">
+            <div class="gallery-title">PLAN</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="FINALPLAN2.JPG" class="gallery-img" 
+                 style="--x: 6px; --y: 0px;" 
+                 onclick="openFullscreen(this.src, 'GROUND LEVEL PLAN')"
+                 alt="Ground Level Plan">
+            <div class="gallery-title">GROUND LEVEL PLAN</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="ATRIUMSECTION.jpg" class="gallery-img" 
+                 style="--x: 0px; --y: 0px; box-shadow: 0 0 0 6px #E0E7FF, 0 0 0 12px #C7D2FE, 0 0 0 18px #A5B4FC, 0 0 0 24px #818CF8, 0 0 0 30px #6366F1;" 
+                 onclick="openFullscreen(this.src, 'WELLNESS ATRIUM SECTION AND PLAN')"
+                 alt="Wellness Atrium Section">
+            <div class="gallery-title">WELLNESS ATRIUM SECTION AND PLAN</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="SPASECTION.jpg" class="gallery-img" 
+                 style="--x: -6px; --y: 0px;" 
+                 onclick="openFullscreen(this.src, 'SPA SECTION AND PLAN')"
+                 alt="Spa Section">
+            <div class="gallery-title">SPA SECTION AND PLAN</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="COMMERCIALSECTION.jpg" class="gallery-img" 
+                 style="--x: 10px; --y: -10px;" 
+                 onclick="openFullscreen(this.src, 'COMMERCIAL SECTION AND PLAN')"
+                 alt="Commercial Section">
+            <div class="gallery-title">COMMERCIAL SECTION AND PLAN</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="HOTELSECTION.jpg" class="gallery-img" 
+                 style="--x: 0px; --y: -10px;" 
+                 onclick="openFullscreen(this.src, 'HOTEL SECTION AND PLAN')"
+                 alt="Hotel Section">
+            <div class="gallery-title">HOTEL SECTION AND PLAN</div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="FINALLONGSECTION.jpg" class="gallery-img" 
+                 style="--x: -10px; --y: -10px;" 
+                 onclick="openFullscreen(this.src, 'LONG SECTION')"
+                 alt="Long Section">
+            <div class="gallery-title">LONG SECTION</div>
+        </div>
+        
+    </div>
+
+    <script>
+        const overlay = document.getElementById('fullscreen-overlay');
+        const fsImage = document.getElementById('fullscreen-image');
+        const fsTitle = document.getElementById('fullscreen-title');
+        
+        let currentSequence = []; 
+        let currentIndex = 0;
+        let currentZoom = 1;
+
+        function openFullscreen(src, title) {
+            currentSequence = [{ src: src, title: title }];
+            currentIndex = 0;
+            showImage();
+        }
+
+        function openSequence(imageObjectsArray) {
+            currentSequence = imageObjectsArray;
+            currentIndex = 0;
+            showImage();
+        }
+
+        function showImage() {
+            const currentItem = currentSequence[currentIndex];
+            fsImage.src = currentItem.src;
+            fsTitle.textContent = currentItem.title ? currentItem.title : "";
+            currentZoom = 1; 
+            fsImage.style.transform = `scale(${currentZoom})`;
+            overlay.style.display = "flex";
+        }
+
+        function handleOverlayClick() {
+            if (currentIndex < currentSequence.length - 1) {
+                currentIndex++;
+                showImage();
+            } else {
+                overlay.style.display = "none";
+            }
+        }
+
+        overlay.addEventListener('wheel', function(e) {
+            e.preventDefault(); 
+            if (e.deltaY < 0) { currentZoom += 0.1; } 
+            else { currentZoom -= 0.1; }
+            currentZoom = Math.min(Math.max(0.5, currentZoom), 5);
+            fsImage.style.transform = `scale(${currentZoom})`;
+        });
+
+        window.addEventListener('load', function() {
+            const introOverlay = document.getElementById('intro-overlay');
+            const video = document.getElementById('intro-video');
+
+            function removeIntro() {
+                introOverlay.style.opacity = '0';
+                setTimeout(() => { if(introOverlay) introOverlay.remove(); }, 1000);
+            }
+            setTimeout(() => { if (document.getElementById('intro-overlay')) removeIntro(); }, 3500);
+
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    if (video.duration) video.playbackRate = video.duration / 2;
+                    setTimeout(removeIntro, 2000);
+                }).catch(() => removeIntro());
+            }
+        });
+    </script>
+</body>
+</html>

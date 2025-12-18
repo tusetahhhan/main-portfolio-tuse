@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Balloon</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        #bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: 0; 
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        #image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1; 
+        }
+
+        .fly-img {
+            position: absolute;
+            /* CHANGED: Back to 50% so they start in the exact middle */
+            top: 50%; 
+            left: 50%;
+            width: 150px; 
+            height: auto;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.1); 
+            animation: flyOut 15s linear forwards;
+            pointer-events: auto; 
+            cursor: pointer;
+            transition: filter 0.3s;
+            z-index: 10; 
+        }
+
+        .fly-img:hover {
+            filter: brightness(1.2);
+            z-index: 20; 
+        }
+
+        @keyframes flyOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.1);
+            }
+            2% {
+                opacity: 1; 
+            }
+            100% {
+                opacity: 1;
+                transform: translate(var(--moveX), var(--moveY)) scale(4); 
+            }
+        }
+
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            font-family: sans-serif;
+            border: 1px solid white;
+            border-radius: 5px;
+            backdrop-filter: blur(5px);
+            transition: background 0.3s;
+            pointer-events: auto;
+            z-index: 100;
+        }
+        
+        .home-btn:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="home-btn">← Back to Home</a>
+
+    <video id="bg-video" autoplay loop muted playsinline>
+        <source src="portalvideo.mp4" type="video/mp4">
+    </video>
+
+    <div id="image-container"></div>
+
+    <script>
+        const imageList = [
+            'googleearthf.jpg',
+            'baseplan.jpg',
+            'finaldiagram.jpg',
+            'axonf.jpg',
+            'planf.jpg',
+            'shortsectionf.jpg',
+            'longsectionf.jpg',
+            'roofplanf.jpg',
+            'butterflyrome.png',
+            'diningrome.png',
+            'museumrome.png',
+            'exterioragainf.jpg',
+            'exteriorrender2.1f.jpg'
+        ];
+
+        let currentIndex = 0; 
+        const container = document.getElementById('image-container');
+
+        function spawnImage() {
+            if (imageList.length === 0) return;
+
+            const img = document.createElement('img');
+            
+            const currentSrc = imageList[currentIndex];
+            img.src = currentSrc;
+            img.classList.add('fly-img');
+
+            currentIndex = (currentIndex + 1) % imageList.length;
+
+            img.onclick = function() {
+                window.open(currentSrc, '_blank');
+            };
+
+            // --- CHANGED: ANGLE CALCULATION ---
+            // Math.PI (180 degrees) is Left
+            // 2 * Math.PI (360 degrees) is Right
+            // The range between them is UP in web coordinates
+            const angle = Math.PI + (Math.random() * Math.PI);
+            
+            const velocity = 1500; 
+
+            const moveX = Math.cos(angle) * velocity + 'px';
+            const moveY = Math.sin(angle) * velocity + 'px';
+
+            img.style.setProperty('--moveX', moveX);
+            img.style.setProperty('--moveY', moveY);
+
+            container.appendChild(img);
+
+            setTimeout(() => {
+                img.remove();
+            }, 15000); 
+        }
+
+        spawnImage(); 
+        setInterval(spawnImage, 1500);
+
+    </script>
+</body>
+</html>

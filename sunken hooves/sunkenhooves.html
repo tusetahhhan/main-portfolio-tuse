@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunken Hooves</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            cursor: none; /* Hide standard cursor */
+            font-family: sans-serif;
+        }
+
+        /* Navigation Button (Always visible on top of the black) */
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border: 1px solid white;
+            border-radius: 5px;
+            z-index: 1000;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        /* --- THE SQUARE FLASHLIGHT --- */
+        #flashlight-square {
+            position: fixed;
+            width: 150px;  /* Width of the square opening */
+            height: 150px; /* Height of the square opening */
+            
+            /* THE TRICK: A massive shadow creates the black screen.
+               The center (the div itself) remains transparent. */
+            box-shadow: 0 0 0 5000px #000; 
+            
+            /* A white border to see the square clearly */
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            
+            /* Center positioning logic */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            /* Important: Let clicks pass through the hole to the images */
+            pointer-events: none; 
+            
+            /* Sits on top of images (1) but below button (1000) */
+            z-index: 100; 
+            
+            /* smoother movement */
+            will-change: top, left; 
+        }
+
+        /* General Image Style */
+        .hidden-img {
+            position: absolute;
+            width: 100px; /* "Like an inch" */
+            height: auto;
+            cursor: pointer;
+            z-index: 1; /* Underneath the darkness */
+            transition: transform 0.2s;
+        }
+
+        .hidden-img:hover {
+            transform: scale(1.1);
+        }
+
+        /* --- SET PLACEMENTS --- */
+        #img1 { top: 15%; left: 10%; }
+        #img2 { top: 10%; left: 45%; }
+        #img3 { top: 20%; left: 80%; }
+        #img4 { top: 50%; left: 15%; }
+        #img5 { top: 45%; left: 75%; }
+        #img6 { top: 80%; left: 20%; }
+        #img7 { top: 75%; left: 50%; }
+        #img8 { top: 85%; left: 85%; }
+
+        #hint {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="home-btn">← Back to Home</a>
+    
+    <div id="hint">Search the darkness...</div>
+
+    <div id="flashlight-square"></div>
+
+    <img id="img1" class="hidden-img" src="sunken1.png" onclick="window.open(this.src)">
+    <img id="img2" class="hidden-img" src="sunken2.png" onclick="window.open(this.src)">
+    <img id="img3" class="hidden-img" src="sunken3.png" onclick="window.open(this.src)">
+    <img id="img4" class="hidden-img" src="sunken4.png" onclick="window.open(this.src)">
+    <img id="img5" class="hidden-img" src="sunken5.png" onclick="window.open(this.src)">
+    <img id="img6" class="hidden-img" src="sunken6.png" onclick="window.open(this.src)">
+    <img id="img7" class="hidden-img" src="sunken7.png" onclick="window.open(this.src)">
+    <img id="img8" class="hidden-img" src="sunken8.png" onclick="window.open(this.src)">
+
+    <script>
+        const flashlight = document.getElementById('flashlight-square');
+
+        // Initialize variables to center of screen
+        let x = window.innerWidth / 2;
+        let y = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (e) => {
+            x = e.clientX;
+            y = e.clientY;
+
+            // Move the flashlight div directly
+            flashlight.style.top = y + 'px';
+            flashlight.style.left = x + 'px';
+        });
+    </script>
+</body>
+</html>

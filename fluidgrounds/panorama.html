@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Visuals</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL STYLES --- */
+        body { 
+            margin: 0; 
+            font-family: 'Inter', sans-serif; 
+            background: #000; 
+            color: #fff;
+            overflow-x: hidden; 
+        }
+
+        h2 {
+            font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 20px; color: #888; text-align: center;
+        }
+
+        /* --- SECTION 1: 360 VIEWER (100vh) --- */
+        #section-360 {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        #panorama { width: 100%; height: 100%; }
+
+        /* 360 UI Controls */
+        .ui-container {
+            position: absolute; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex; gap: 20px;
+        }
+        .btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none; padding: 12px 24px;
+            font-weight: 700; font-size: 14px;
+            text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; border-radius: 30px;
+            text-decoration: none; color: #000;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: #fff; transform: scale(1.05); }
+
+        /* Scroll Down Indicator */
+        .scroll-down {
+            position: absolute; bottom: 100px; left: 50%;
+            transform: translateX(-50%);
+            color: #fff; font-size: 12px; letter-spacing: 1px;
+            cursor: pointer; z-index: 100;
+            animation: bounce 2s infinite;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
+            40% {transform: translateX(-50%) translateY(-10px);}
+            60% {transform: translateX(-50%) translateY(-5px);}
+        }
+
+        /* --- SECTION 2: WIDE 180 SCROLLERS --- */
+        .wide-section {
+            width: 100vw;
+            height: 100vh;
+            overflow-x: auto; 
+            overflow-y: hidden;
+            white-space: nowrap; 
+            position: relative;
+            border-bottom: 2px solid #333;
+        }
+        
+        .wide-img {
+            height: 100vh; 
+            width: auto;   
+            display: inline-block;
+            vertical-align: top;
+        }
+        
+        .wide-label {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(0,0,0,0.5); padding: 5px 10px;
+            border-radius: 4px; font-size: 12px; pointer-events: none;
+        }
+
+        /* --- SECTION 3: NORMAL RENDER GALLERY --- */
+        .gallery-section {
+            padding: 80px 40px;
+            background: #111;
+            min-height: 100vh;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            max-width: 1600px; margin: 0 auto;
+        }
+
+        .render-card {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .normal-img {
+            width: 100%; height: auto;
+            border-radius: 4px;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .normal-img:hover { transform: scale(1.02); }
+
+        .img-caption {
+            font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+        }
+
+        /* --- INTRO VIDEO --- */
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #fff; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease; pointer-events: none;
+        }
+        #intro-video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Fullscreen Image Modal */
+        #modal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.95); z-index: 10000;
+            display: none; justify-content: center; align-items: center;
+            cursor: pointer;
+        }
+        #modal-img { max-width: 95vw; max-height: 95vh; object-fit: contain; }
+
+    </style>
+</head>
+<body>
+
+    <div id="intro-overlay">
+        <video id="intro-video" muted playsinline>
+            <source src="../wavegif.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="section-360">
+        <div id="panorama"></div>
+        
+        <div class="ui-container">
+            <a href="fluidgrounds.html" class="btn">← Back to Grid</a>
+            <button class="btn" onclick="switchScene()">Switch 360 Scene</button>
+        </div>
+
+        <div class="scroll-down" onclick="scrollToWide()">
+            SCROLL DOWN FOR MORE ▼
+        </div>
+    </div>
+
+    <div class="wide-section" id="wide1">
+        <div class="wide-label">180 VIEW 1 (SCROLL RIGHT ➔)</div>
+        <img src="180.png" class="wide-img" alt="Wide View 1">
+    </div>
+
+    <div class="wide-section" id="wide2">
+        <div class="wide-label">180 VIEW 2 (SCROLL RIGHT ➔)</div>
+        <img src="180try.png" class="wide-img" alt="Wide View 2">
+    </div>
+
+
+    <div class="gallery-section">
+        <h2>Project Renders</h2>
+        <div class="gallery-grid">
+            
+            <div class="render-card">
+                <img src="smallrender.png" class="normal-img" onclick="openModal(this.src)">
+                <div class="img-caption">VIEW OF WELLNESS ATRIUM AND SPA</div>
+            </div>
+
+            <div class="render-card">
+                <img src="kayakedit.png" class="normal-img" onclick="openModal(this.src)">
+                <div class="img-caption">KAYAK PLATFORM</div>
+            </div>
+
+            <div class="render-card">
+                <img src="RENDER FLOODED CIVIC CENTER.jpg" class="normal-img" onclick="openModal(this.src)">
+                <div class="img-caption">FLOODED CIVIC CENTER</div>
+            </div>
+
+            <div class="render-card">
+                <img src="RENDER ICE SKATING RINK.png" class="normal-img" onclick="openModal(this.src)">
+                <div class="img-caption">CIVIC CENTER IN THE WINTER</div>
+            </div>
+
+            <div class="render-card">
+                <img src="RENDER IN BETWEEN COMMERCIAL AND HOTEL.jpg" class="normal-img" onclick="openModal(this.src)">
+                <div class="img-caption">SPACE IN BETWEEN COMMERCIAL AND HOTEL</div>
+            </div>
+
+            <div class="render-card">
+                <img src="SITE RENDER.jpg" class="normal-img" onclick="openModal(this.src)">
+                <div class="img-caption">SITE RENDER</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="modal" onclick="this.style.display='none'">
+        <img id="modal-img" src="">
+    </div>
+
+    <script>
+        // --- 360 VIEWER LOGIC ---
+        let viewer;
+        let isFirstScene = true;
+
+        function initViewer() {
+            viewer = pannellum.viewer('panorama', {
+                "default": {
+                    "firstScene": "scene1",
+                    "autoLoad": true,
+                    "showControls": true,
+                    "mouseZoom": false 
+                },
+                "scenes": {
+                    "scene1": {
+                        "type": "equirectangular",
+                        "panorama": "360 CIVIC CENTER.jpg"
+                    },
+                    "scene2": {
+                        "type": "equirectangular",
+                        // UPDATED FILENAME HERE
+                        "panorama": "360againedited.png"
+                    }
+                }
+            });
+        }
+
+        function switchScene() {
+            if (!viewer) return;
+            if (isFirstScene) {
+                viewer.loadScene('scene2');
+                isFirstScene = false;
+            } else {
+                viewer.loadScene('scene1');
+                isFirstScene = true;
+            }
+        }
+
+        // --- SCROLL LOGIC ---
+        function scrollToWide() {
+            document.getElementById('wide1').scrollIntoView({behavior: 'smooth'});
+        }
+
+        // --- MODAL LOGIC ---
+        function openModal(src) {
+            document.getElementById('modal-img').src = src;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        // --- INIT ---
+        window.addEventListener('load', function() {
+            initViewer();
+
+            const introOverlay = document.getElementById('intro-overlay');
+            const video = document.getElementById('intro-video');
+
+            function removeIntro() {
+                introOverlay.style.opacity = '0';
+                setTimeout(() => { if(introOverlay) introOverlay.remove(); }, 1000);
+            }
+            setTimeout(() => { if (document.getElementById('intro-overlay')) removeIntro(); }, 3500);
+
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    if (video.duration) video.playbackRate = video.duration / 2;
+                    setTimeout(removeIntro, 2000);
+                }).catch(() => removeIntro());
+            }
+        });
+    </script>
+</body>
+</html>
